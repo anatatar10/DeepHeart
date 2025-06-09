@@ -1,0 +1,29 @@
+.header {
+  background: #0e2a47;
+  color: white;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #38bdf8;
+  text-decoration: none;  // ❌ Removes underline
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: none; // ❌ Still no underline on hover
+    color: #38bdf8; // Optional: keep same color on hover
+  }
+
+  .logo-icon {
+    width: 24px;
+    height: 24px;
+  }
+}

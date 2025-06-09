@@ -1,0 +1,28 @@
+<div class="dashboard-container">
+  <h1>Welcome to DeepHeart</h1>
+  <p>Your friendly AI that keeps your heart safe.</p>
+
+  <button (click)="goToUpload()">Upload ECG</button>
+</div>
+
+<div class="cards-container">
+  <div class="card">
+    <h3>Total Records</h3>
+    <p>125</p>
+  </div>
+
+  <div class="card">
+    <h3>Normal ECGs</h3>
+    <p>80</p>
+  </div>
+
+  <div class="card">
+    <h3>Detected Abnormalities</h3>
+    <p>45</p>
+  </div>
+</div>
+
+<div class="actions">
+  <a routerLink="/upload" class="action-button">Upload New ECG</a>
+  <a routerLink="/analytics" class="action-button secondary">View Analytics</a>
+</div>

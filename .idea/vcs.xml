@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ai_models" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/ai_models/src/ecg_image_kit" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/backend" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/frontend" vcs="Git" />
+  </component>
+</project>

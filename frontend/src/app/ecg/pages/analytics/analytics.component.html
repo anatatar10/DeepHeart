@@ -1,0 +1,21 @@
+<div class="analytics-container">
+  <h2>ECG Analytics Overview</h2>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Prediction Distribution</h3>
+      <canvas baseChart
+              [data]="pieChartData"
+              [type]="'pie'">
+      </canvas>
+    </div>
+
+    <div class="chart-card">
+      <h3>Monthly Uploads</h3>
+      <canvas baseChart
+              [data]="barChartData"
+              [type]="'bar'">
+      </canvas>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,21 @@
+<header class="header">
+  <div class="container flex items-center justify-between">
+    <div class="flex items-center gap-16">
+      <a class="logo" routerLink="/" routerLinkActive="active">
+        <span>🫀DeepHeart</span>
+      </a>
+      <nav class="nav" id="mainNav">
+        <a routerLink="/upload" routerLinkActive="active" class="nav-link">Upload</a>
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">Dashboard</a>
+        <a routerLink="/patients" routerLinkActive="active" class="nav-link">Patients</a>
+        <a routerLink="/analytics" routerLinkActive="active" class="nav-link">Analytics</a>
+        <a routerLink="/admin" routerLinkActive="active" class="nav-link">Admin</a>
+      </nav>
+    </div>
+    <div class="user-info" *ngIf="currentUser">
+      <span>{{ currentUser.name }}</span>
+      <span class="status status--success">{{ currentUser.role }}</span>
+      <button class="btn btn--outline btn--sm" (click)="logout()">Logout</button>
+    </div>
+  </div>
+</header>

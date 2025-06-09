@@ -1,0 +1,93 @@
+.upload-page {
+  padding: 3rem 1rem;
+  color: white;
+  text-align: center;
+
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-subtitle {
+    color: #ccc;
+    margin-bottom: 2.5rem;
+  }
+
+  .upload-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+
+  .card {
+    background: #1f2937;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .upload-area {
+    border: 2px dashed #4ade80;
+    padding: 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+
+    .upload-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      margin-top: 1rem;
+    }
+
+    input {
+      display: none;
+    }
+  }
+
+  .results-card {
+    min-height: 250px;
+    text-align: left;
+
+    .empty-state {
+      font-style: italic;
+      color: #aaa;
+    }
+  }
+
+  .patient-box {
+    margin-top: 2rem;
+    max-width: 100%;
+    width: 100%;
+    background: #1f2937;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: left;
+
+    select {
+      width: 100%;
+      padding: 0.75rem;
+      background: #111827;
+      border: 1px solid #4b5563;
+      color: #fff;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .add-btn {
+      background: #3b82f6;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+
+      &:hover {
+        background: #2563eb;
+      }
+    }
+  }
+}
