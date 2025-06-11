@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UploadComponent } from './ecg-upload.component';
+import { EcgUploadComponent } from './ecg-upload.component';
 
 describe('UploadComponent', () => {
-  let component: UploadComponent;
-  let fixture: ComponentFixture<UploadComponent>;
+  let component: EcgUploadComponent;
+  let fixture: ComponentFixture<EcgUploadComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UploadComponent]
+      imports: [EcgUploadComponent],
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(UploadComponent);
+    fixture = TestBed.createComponent(EcgUploadComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,30 +1,28 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import {HeaderComponent} from './ecg/components/header/header.component';
+import { HeaderComponent } from './ecg/components/header/header.component';
+
+import { ToastModule } from 'primeng/toast';  // <-- import ToastModule here
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent],
-  templateUrl: './app.component.html'
+  imports: [CommonModule, RouterModule, HeaderComponent, ToastModule],  // <-- add here
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  constructor(public router: Router) {}
+  isAuthRoute = false;
 
-  ngOnInit(): void {
-    const user = localStorage.getItem('user');
-    if (user) {
-      const { role } = JSON.parse(user);
-      document.body.setAttribute('data-user-role', role.toLowerCase());
-    }
-  }
-  get isAuthRoute(): boolean {
-    return this.router.url.startsWith('/auth');
-  }
-
-  get isLoggedIn(): boolean {
-    return !!localStorage.getItem('user');
+  constructor(private router: Router) {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        console.log('🔍 Current URL:', this.router.url);
+        this.isAuthRoute = this.router.url.includes('/auth');
+        console.log('🔍 Is auth route (navbar hidden):', this.isAuthRoute);
+        console.log('🔍 Should show navbar:', !this.isAuthRoute);
+      }
+    });
   }
 }

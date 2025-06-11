@@ -1,0 +1,288 @@
+<!-- src/app/components/patient-records/patient-records.component.html -->
+<div class="records-container">
+  <!-- Header Section -->
+  <div class="section-header">
+    <div class="header-content">
+      <div class="header-title">
+        <div class="title-info">
+          <h2>Medical Records</h2>
+          <div class="patient-info" *ngIf="patient">
+            <h3>{{ patient.name }}</h3>
+            <div class="patient-summary">
+              <span class="summary-item">Age: {{ patient.age }}</span>
+              <span class="summary-item">Gender: {{ patient.gender }}</span>
+              <span class="summary-item">BP: {{ patient.bloodPressure }}</span>
+            </div>
+          </div>
+          <div class="patient-info" *ngIf="!patient">
+            <h3>Loading patient information...</h3>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" (click)="goBack()">
+          Back to Patients
+        </button>
+        <button class="btn btn-secondary" (click)="printRecords()">
+          🖨️ Print Records
+        </button>
+        <button class="btn btn-primary" (click)="openAddModal()">
+          + Add Record
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading medical records...</p>
+  </div>
+
+  <!-- Records Timeline -->
+  <div *ngIf="!loading" class="records-timeline">
+    <div *ngFor="let record of records; let i = index" class="record-item">
+      <div class="record-date-marker">
+        <div class="date-circle">{{ (i + 1) }}</div>
+        <div class="date-info">
+          <div class="date-primary">{{ formatDate(record.date) }}</div>
+          <div class="visit-type">{{ record.visitType }}</div>
+        </div>
+      </div>
+
+      <div class="record-content">
+        <div class="record-header">
+          <div class="record-info">
+            <h3 class="diagnosis">{{ record.diagnosis }}</h3>
+            <p class="doctor-name">Dr. {{ record.doctorName }}</p>
+          </div>
+          <div class="record-actions">
+            <button class="btn btn-sm btn-secondary" (click)="editRecord(record)">
+              📝 Edit
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="deleteRecord(record)">
+              🗑️ Delete
+            </button>
+          </div>
+        </div>
+
+        <div class="record-details">
+          <!-- Vital Signs -->
+          <div class="detail-section">
+            <h4>Vital Signs</h4>
+            <div class="vital-signs-grid">
+              <div class="vital-item">
+                <span class="vital-label">Blood Pressure:</span>
+                <span class="vital-value">{{ record.vitalSigns.bloodPressure || 'N/A' }}</span>
+              </div>
+              <div class="vital-item">
+                <span class="vital-label">Heart Rate:</span>
+                <span class="vital-value">{{ record.vitalSigns.heartRate || 'N/A' }} bpm</span>
+              </div>
+              <div class="vital-item">
+                <span class="vital-label">Temperature:</span>
+                <span class="vital-value">{{ record.vitalSigns.temperature || 'N/A' }}°C</span>
+              </div>
+              <div class="vital-item">
+                <span class="vital-label">Weight:</span>
+                <span class="vital-value">{{ record.vitalSigns.weight || 'N/A' }} kg</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Treatment & Medications -->
+          <div class="detail-section">
+            <h4>Treatment</h4>
+            <p class="treatment-text">{{ record.treatment }}</p>
+          </div>
+
+          <div class="detail-section" *ngIf="record.medications">
+            <h4>Medications</h4>
+            <p class="medications-text">{{ record.medications }}</p>
+          </div>
+
+          <!-- Notes -->
+          <div class="detail-section" *ngIf="record.notes">
+            <h4>Notes</h4>
+            <p class="notes-text">{{ record.notes }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && records.length === 0" class="empty-state">
+    <div class="empty-icon">📋</div>
+    <h3>No medical records found</h3>
+    <p>Start by adding the first medical record for this patient.</p>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      Add First Record
+    </button>
+  </div>
+</div>
+
+<!-- Add/Edit Medical Record Modal -->
+<div *ngIf="showAddModal" class="modal" (click)="closeAddModal()">
+  <div class="modal-content large-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ editingRecord ? 'Edit Medical Record' : 'Add New Medical Record' }}</h3>
+      <button class="modal-close" (click)="closeAddModal()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <form class="record-form">
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h4>Visit Information</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Date *</label>
+              <input
+                type="date"
+                class="form-control"
+                [(ngModel)]="newRecord.date"
+                name="date"
+                required
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label">Visit Type *</label>
+              <select
+                class="form-control"
+                [(ngModel)]="newRecord.visitType"
+                name="visitType"
+                required
+              >
+                <option *ngFor="let type of visitTypes" [value]="type">{{ type }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Doctor Name *</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="newRecord.doctorName"
+                name="doctorName"
+                required
+                placeholder="Enter doctor's name"
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Vital Signs -->
+        <div class="form-section">
+          <h4>Vital Signs</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Blood Pressure</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="newRecord.vitalSigns.bloodPressure"
+                name="bloodPressure"
+                placeholder="e.g., 120/80"
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label">Heart Rate (bpm)</label>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="newRecord.vitalSigns.heartRate"
+                name="heartRate"
+                placeholder="Enter heart rate"
+                min="0"
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label">Temperature (°C)</label>
+              <input
+                type="number"
+                step="0.1"
+                class="form-control"
+                [(ngModel)]="newRecord.vitalSigns.temperature"
+                name="temperature"
+                placeholder="Enter temperature"
+                min="0"
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label">Weight (kg)</label>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="newRecord.vitalSigns.weight"
+                name="weight"
+                placeholder="Enter weight"
+                min="0"
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Medical Information -->
+        <div class="form-section">
+          <h4>Medical Information</h4>
+          <div class="form-group">
+            <label class="form-label">Diagnosis *</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="newRecord.diagnosis"
+              name="diagnosis"
+              required
+              placeholder="Enter diagnosis"
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Treatment *</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="newRecord.treatment"
+              name="treatment"
+              required
+              placeholder="Describe the treatment plan"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Medications</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="newRecord.medications"
+              name="medications"
+              placeholder="List medications and dosages"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Notes</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="newRecord.notes"
+              name="notes"
+              placeholder="Additional notes and observations"
+              rows="4"
+            ></textarea>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeAddModal()">Cancel</button>
+      <button
+        class="btn btn-primary"
+        (click)="editingRecord ? updateRecord() : addRecord()"
+        [disabled]="!validateForm()"
+      >
+        {{ editingRecord ? 'Update Record' : 'Add Record' }}
+      </button>
+    </div>
+  </div>
+</div>

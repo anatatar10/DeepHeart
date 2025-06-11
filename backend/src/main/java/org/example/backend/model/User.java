@@ -2,6 +2,7 @@ package org.example.backend.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -35,12 +36,36 @@ public class User {
     private LocalDate birthdate;
 
     @Column(length = 10)
-    private String gender;  // You could make this an enum if needed
+    private String gender;
+
+    // Additional fields for patient information
+    @Column(length = 50)
+    private String smokingStatus; // "Never smoked", "Former smoker", "Current smoker"
+
+    @Column(length = 20)
+    private String bloodPressure; // e.g., "120/80"
+
+    @ElementCollection
+    @CollectionTable(name = "user_medical_history", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "condition")
+    private List<String> medicalHistory;
+
+    @Column
+    private LocalDate registrationDate;
+
+    // Relationship: Many patients assigned to one doctor
+    @ManyToOne
+    @JoinColumn(name = "doctor_id")
+    private User doctor;
 
     // Constructors
-    public User() {}
+    public User() {
+        this.registrationDate = LocalDate.now();
+    }
 
-    public User(String username, String email, String password, Role role, String name, String phone, LocalDate birthdate, String gender) {
+    public User(String username, String email, String password, Role role, String name,
+                String phone, LocalDate birthdate, String gender) {
+        this();
         this.username = username;
         this.email = email;
         this.password = password;
@@ -52,29 +77,98 @@ public class User {
     }
 
     // Getters and setters
-    public UUID getId() { return id; }
+    public UUID getId() {
+        return id;
+    }
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public String getPassword() {
+        return password;
+    }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-    public Role getRole() { return role; }
-    public void setRole(Role role) { this.role = role; }
+    public Role getRole() {
+        return role;
+    }
+    public void setRole(Role role) {
+        this.role = role;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
+    public String getPhone() {
+        return phone;
+    }
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
-    public LocalDate getBirthdate() { return birthdate; }
-    public void setBirthdate(LocalDate birthdate) { this.birthdate = birthdate; }
+    public LocalDate getBirthdate() {
+        return birthdate;
+    }
+    public void setBirthdate(LocalDate birthdate) {
+        this.birthdate = birthdate;
+    }
 
-    public String getGender() { return gender; }
-    public void setGender(String gender) { this.gender = gender; }
+    public String getGender() {
+        return gender;
+    }
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getSmokingStatus() {
+        return smokingStatus;
+    }
+    public void setSmokingStatus(String smokingStatus) {
+        this.smokingStatus = smokingStatus;
+    }
+
+    public String getBloodPressure() {
+        return bloodPressure;
+    }
+    public void setBloodPressure(String bloodPressure) {
+        this.bloodPressure = bloodPressure;
+    }
+
+    public List<String> getMedicalHistory() {
+        return medicalHistory;
+    }
+    public void setMedicalHistory(List<String> medicalHistory) {
+        this.medicalHistory = medicalHistory;
+    }
+
+    public LocalDate getRegistrationDate() {
+        return registrationDate;
+    }
+    public void setRegistrationDate(LocalDate registrationDate) {
+        this.registrationDate = registrationDate;
+    }
+
+    public User getDoctor() {
+        return doctor;
+    }
+    public void setDoctor(User doctor) {
+        this.doctor = doctor;
+    }
 }

@@ -4,25 +4,46 @@
   <div class="cont" [class.s-signup]="isSignUpMode">
     <!-- Sign In Form -->
     <div class="form sign-in">
-      <h2>Sign In</h2>
+      <div class="form-header">
+        <h1 class="brand-name">Deep🫀Heart</h1>
+        <h2 class="form-title">Welcome Back</h2>
+      </div>
       <form [formGroup]="signinForm" (ngSubmit)="onSignIn()">
         <label>
           <span>Email Address</span>
           <input
             type="email"
             formControlName="email"
+            [class.error]="isFieldInvalid(signinForm, 'email')"
             required
           />
+          <div class="error-message" *ngIf="isFieldInvalid(signinForm, 'email')">
+            {{ getFieldError(signinForm, 'email') }}
+          </div>
         </label>
+
         <label>
           <span>Password</span>
           <input
             type="password"
             formControlName="password"
+            [class.error]="isFieldInvalid(signinForm, 'password')"
             required
           />
+          <div class="error-message" *ngIf="isFieldInvalid(signinForm, 'password')">
+            {{ getFieldError(signinForm, 'password') }}
+          </div>
         </label>
-        <button class="submit" type="submit">Sign In</button>
+
+        <!-- Submit button only shows when form is valid -->
+        <button
+          *ngIf="isSigninFormValid"
+          class="submit"
+          type="submit"
+          [disabled]="loading">
+          {{ loading ? 'Signing In...' : 'Sign In' }}
+        </button>
+
         <p class="forgot-pass">Forgot Password?</p>
       </form>
     </div>
@@ -45,7 +66,10 @@
 
       <!-- Sign Up Form -->
       <div class="form sign-up">
-        <h2>Sign Up</h2>
+        <div class="form-header">
+          <h1 class="brand-name">Deep🫀Heart</h1>
+          <h2 class="form-title">Create Account</h2>
+        </div>
         <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
 
           <div class="form-row">
@@ -54,16 +78,25 @@
               <input
                 type="text"
                 formControlName="username"
+                [class.error]="isFieldInvalid(signupForm, 'username')"
                 required
               />
+              <div class="error-message" *ngIf="isFieldInvalid(signupForm, 'username')">
+                {{ getFieldError(signupForm, 'username') }}
+              </div>
             </label>
+
             <label>
               <span>Full Name</span>
               <input
                 type="text"
                 formControlName="name"
+                [class.error]="isFieldInvalid(signupForm, 'name')"
                 required
               />
+              <div class="error-message" *ngIf="isFieldInvalid(signupForm, 'name')">
+                {{ getFieldError(signupForm, 'name') }}
+              </div>
             </label>
           </div>
 
@@ -72,8 +105,12 @@
             <input
               type="email"
               formControlName="email"
+              [class.error]="isFieldInvalid(signupForm, 'email')"
               required
             />
+            <div class="error-message" *ngIf="isFieldInvalid(signupForm, 'email')">
+              {{ getFieldError(signupForm, 'email') }}
+            </div>
           </label>
 
           <label>
@@ -81,27 +118,56 @@
             <input
               type="password"
               formControlName="password"
+              [class.error]="isFieldInvalid(signupForm, 'password')"
               required
             />
+            <div class="error-message" *ngIf="isFieldInvalid(signupForm, 'password')">
+              {{ getFieldError(signupForm, 'password') }}
+            </div>
+          </label>
+
+          <label>
+            <span>Confirm Password</span>
+            <input
+              type="password"
+              formControlName="confirmPassword"
+              [class.error]="isFieldInvalid(signupForm, 'confirmPassword') || signupForm.errors?.['mismatch']"
+              required
+            />
+            <div class="error-message" *ngIf="isFieldInvalid(signupForm, 'confirmPassword') || signupForm.errors?.['mismatch']">
+              {{ getFieldError(signupForm, 'confirmPassword') }}
+            </div>
           </label>
 
           <div class="form-row">
             <label>
               <span>Role</span>
-              <select formControlName="role" required>
+              <select
+                formControlName="role"
+                [class.error]="isFieldInvalid(signupForm, 'role')"
+                required>
                 <option value="">Select role</option>
                 <option value="DOCTOR">Doctor</option>
                 <option value="PATIENT">Patient</option>
               </select>
+              <div class="error-message" *ngIf="isFieldInvalid(signupForm, 'role')">
+                {{ getFieldError(signupForm, 'role') }}
+              </div>
             </label>
+
             <label>
               <span>Phone</span>
               <input
                 type="tel"
                 formControlName="phone"
+                [class.error]="isFieldInvalid(signupForm, 'phone')"
                 pattern="[0-9]{10}"
+                placeholder="1234567890"
                 required
               />
+              <div class="error-message" *ngIf="isFieldInvalid(signupForm, 'phone')">
+                {{ getFieldError(signupForm, 'phone') }}
+              </div>
             </label>
           </div>
 
@@ -111,20 +177,48 @@
               <input
                 type="date"
                 formControlName="birthdate"
+                [class.error]="isFieldInvalid(signupForm, 'birthdate')"
+                required
               />
+              <div class="error-message" *ngIf="isFieldInvalid(signupForm, 'birthdate')">
+                {{ getFieldError(signupForm, 'birthdate') }}
+              </div>
             </label>
+
             <label>
               <span>Gender</span>
-              <select formControlName="gender">
+              <select
+                formControlName="gender"
+                [class.error]="isFieldInvalid(signupForm, 'gender')"
+                required>
                 <option value="">Select gender</option>
                 <option value="MALE">Male</option>
                 <option value="FEMALE">Female</option>
                 <option value="OTHER">Other</option>
               </select>
+              <div class="error-message" *ngIf="isFieldInvalid(signupForm, 'gender')">
+                {{ getFieldError(signupForm, 'gender') }}
+              </div>
             </label>
           </div>
 
-          <button type="submit" class="submit">Sign Up Now</button>
+          <!-- Submit button only shows when ALL fields are valid -->
+          <button
+            *ngIf="isSignupFormValid"
+            type="submit"
+            class="submit"
+            [disabled]="loading">
+            {{ loading ? 'Creating Account...' : 'Sign Up Now' }}
+          </button>
+
+          <!-- Progress indicator showing how many fields are completed -->
+          <div *ngIf="!isSignupFormValid" class="form-progress">
+            <p>Please complete all required fields to continue</p>
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="getFormCompletionPercentage()"></div>
+            </div>
+          </div>
+
         </form>
       </div>
     </div>

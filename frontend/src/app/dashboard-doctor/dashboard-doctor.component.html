@@ -1,0 +1,128 @@
+<!-- Enhanced Dashboard Doctor Component Template -->
+<div class="main">
+  <section class="section active">
+    <div class="container">
+      <!-- Welcome Section -->
+      <div class="section-header">
+        <h2>Dashboard</h2>
+        <p class="section-subtitle" *ngIf="currentUser">
+          Welcome back,
+          <span class="welcome-user">{{ currentUser.name }}</span>
+        </p>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid" *ngIf="stats">
+        <div class="stat-card">
+          <div class="stat-icon">📊</div>
+          <div class="stat-content">
+            <h3>{{ stats.totalUploads || 0 }}</h3>
+            <p>Total ECG Uploads</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-content">
+            <h3>{{ stats.totalPatients || 0 }}</h3>
+            <p>Total Patients</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📈</div>
+          <div class="stat-content">
+            <h3>{{ stats.todaysUploads || 0 }}</h3>
+            <p>Today's Uploads</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-content">
+            <h3>{{ stats.modelAccuracy || '94.2' }}%</h3>
+            <p>Model Accuracy</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Doctor Information Card -->
+      <div class="card doctor-info-card" *ngIf="currentUser">
+        <div class="card__body">
+          <div class="doctor-header">
+            <div class="doctor-avatar-section">
+              <div class="user-avatar activity-indicator">
+                {{ currentUser.name?.charAt(0) || 'D' }}
+              </div>
+              <div class="doctor-basic-info">
+                <h3 class="doctor-name">{{ currentUser.name }}</h3>
+                <div class="doctor-title">
+                  <span class="role-badge" [ngClass]="currentUser.role">
+                    {{ formatRole(currentUser.role) }}
+                  </span>
+                  <span class="status online">Online</span>
+                </div>
+              </div>
+            </div>
+            <div class="doctor-actions">
+              <button class="btn btn--sm btn--outline">
+                📝 Edit Profile
+              </button>
+              <button class="btn btn--sm btn--secondary">
+                ⚙️ Settings
+              </button>
+            </div>
+          </div>
+
+          <div class="user-details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Full Name</span>
+              <span class="detail-value">{{ currentUser.name }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Professional Role</span>
+              <span class="detail-value">{{ formatRole(currentUser.role) }}</span>
+            </div>
+            <div class="detail-item" *ngIf="currentUser.email">
+              <span class="detail-label">Email Address</span>
+              <span class="detail-value">{{ currentUser.email }}</span>
+            </div>
+            <div class="detail-item" *ngIf="currentUser.phone">
+              <span class="detail-label">Phone Number</span>
+              <span class="detail-value">{{ currentUser.phone }}</span>
+            </div>
+            <div class="detail-item" *ngIf="currentUser.department">
+              <span class="detail-label">Department</span>
+              <span class="detail-value">{{ currentUser.department }}</span>
+            </div>
+            <div class="detail-item" *ngIf="currentUser.specialization">
+              <span class="detail-label">Specialization</span>
+              <span class="detail-value">{{ currentUser.specialization }}</span>
+            </div>
+            <div class="detail-item" *ngIf="currentUser.licenseNumber">
+              <span class="detail-label">License Number</span>
+              <span class="detail-value">{{ currentUser.licenseNumber }}</span>
+            </div>
+            <div class="detail-item" *ngIf="currentUser.yearsOfExperience">
+              <span class="detail-label">Experience</span>
+              <span class="detail-value">{{ currentUser.yearsOfExperience }} years</span>
+            </div>
+            <div class="detail-item" *ngIf="currentUser.hospital">
+              <span class="detail-label">Hospital/Clinic</span>
+              <span class="detail-value">{{ currentUser.hospital }}</span>
+            </div>
+            <div class="detail-item" *ngIf="currentUser.shift">
+              <span class="detail-label">Current Shift</span>
+              <span class="detail-value">{{ currentUser.shift }}</span>
+            </div>
+            <div class="detail-item" *ngIf="currentUser.lastLogin">
+              <span class="detail-label">Last Login</span>
+              <span class="detail-value">{{ currentUser.lastLogin | date:'medium' }}</span>
+            </div>
+            <div class="detail-item" *ngIf="currentUser.accountCreated">
+              <span class="detail-label">Member Since</span>
+              <span class="detail-value">{{ currentUser.accountCreated | date:'MMM yyyy' }}</span>
+            </div>
+          </div>
+    </div>
+      </div>
+      </div>
+  </section>
+</div>

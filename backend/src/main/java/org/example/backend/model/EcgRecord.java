@@ -12,9 +12,15 @@ public class EcgRecord {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    // Patient who owns this ECG record
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    // Doctor responsible for this ECG record
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id")
+    private User doctor;
 
     @Column(nullable = false)
     private String filename;
@@ -44,8 +50,9 @@ public class EcgRecord {
     // Constructor
     public EcgRecord() {}
 
-    public EcgRecord(User user, String filename, String status) {
+    public EcgRecord(User user, User doctor, String filename, String status) {
         this.user = user;
+        this.doctor = doctor;
         this.filename = filename;
         this.status = status;
         this.dateAdded = LocalDateTime.now();
@@ -67,6 +74,14 @@ public class EcgRecord {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public User getDoctor() {
+        return doctor;
+    }
+
+    public void setDoctor(User doctor) {
+        this.doctor = doctor;
     }
 
     public String getFilename() {
