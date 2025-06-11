@@ -1184,3 +1184,48 @@
     }
   }
 }
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 20px;
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(50, 184, 198, 1);
+    color: rgba(50, 184, 198, 1);
+    background: transparent;
+    font-family: inherit;
+    min-height: 44px;
+    letter-spacing: 0.025em;
+    position: relative;
+    overflow: hidden;
+
+    &:hover:not(:disabled) {
+      background: rgba(50, 184, 198, 0.1);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(50, 184, 198, 0.2);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}

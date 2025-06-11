@@ -175,115 +175,37 @@
               </p>
             </div>
 
-            <!-- Actions -->
-            <!-- Enhanced Actions section for classification results -->
-            <!-- Replace the existing result-actions div in your template -->
-
+            <!-- Simplified Actions -->
             <div class="result-actions">
               <button
                 type="button"
-                class="btn btn--primary btn--sm"
-                (click)="viewDetailedResults(result)">
-                <span class="btn-icon">🔍</span>
-                View Details
+                class="action-btn download-btn"
+                (click)="downloadReport(result)"
+                [disabled]="isGeneratingPDF"
+                title="Download PDF Report">
+                <span class="btn-icon" *ngIf="!isGeneratingPDF">📄</span>
+                <span class="btn-icon" *ngIf="isGeneratingPDF">⏳</span>
+                <span *ngIf="!isGeneratingPDF">Download PDF</span>
+                <span *ngIf="isGeneratingPDF">Generating...</span>
               </button>
-
-              <!-- Enhanced PDF Download Button with Options -->
-              <div class="pdf-download-group">
-                <button
-                  type="button"
-                  class="btn btn--outline btn--sm"
-                  (click)="downloadReport(result)"
-                  [disabled]="isGeneratingPDF"
-                  title="Download PDF Report">
-                  <span class="btn-icon" *ngIf="!isGeneratingPDF">📄</span>
-                  <span class="btn-icon" *ngIf="isGeneratingPDF">⏳</span>
-                  <span *ngIf="!isGeneratingPDF">Download PDF</span>
-                  <span *ngIf="isGeneratingPDF">Generating...</span>
-                </button>
-
-                <button
-                  type="button"
-                  class="btn btn--outline btn--sm btn--dropdown"
-                  (click)="showPDFOptions(result)"
-                  [disabled]="isGeneratingPDF"
-                  title="PDF Options">
-                  <span class="btn-icon">⚙️</span>
-                </button>
-              </div>
 
               <button
                 type="button"
-                class="btn btn--outline btn--sm"
-                (click)="saveToPatientRecord(result)">
-                <span class="btn-icon">💾</span>
-                Save to Record
+                class="action-btn save-btn"
+                [class.saved]="isResultSaved(result)"
+                [disabled]="isSavingToRecord || isResultSaved(result)"
+                (click)="saveToPatientRecord(result)"
+                [title]="isResultSaved(result) ? 'Already saved to patient record' : 'Save to Patient Record'">
+                <span class="btn-icon" *ngIf="!isSavingToRecord && !isResultSaved(result)">💾</span>
+                <span class="btn-icon" *ngIf="isSavingToRecord">⏳</span>
+                <span class="btn-icon" *ngIf="isResultSaved(result)">✅</span>
+                <span *ngIf="!isSavingToRecord && !isResultSaved(result)">Save to Record</span>
+                <span *ngIf="isSavingToRecord">Saving...</span>
+                <span *ngIf="isResultSaved(result)">Saved to Record</span>
               </button>
             </div>
 
-            <!-- PDF Options Modal (add this outside the results loop) -->
-            <div class="pdf-options-modal" *ngIf="showPDFOptionsModal" (click)="closePDFOptions()">
-              <div class="pdf-options-content" (click)="$event.stopPropagation()">
-                <div class="modal-header">
-                  <h3>PDF Report Options</h3>
-                  <button class="close-btn" (click)="closePDFOptions()">✕</button>
-                </div>
-
-                <div class="modal-body">
-                  <div class="option-group">
-                    <h4>Include in Report</h4>
-                    <label class="option-item">
-                      <input type="checkbox" [(ngModel)]="pdfOptions.includeCharts" />
-                      <span class="checkmark"></span>
-                      Probability Charts
-                    </label>
-                    <label class="option-item">
-                      <input type="checkbox" [(ngModel)]="pdfOptions.includeDetailedAnalysis" />
-                      <span class="checkmark"></span>
-                      Detailed Analysis
-                    </label>
-                    <label class="option-item">
-                      <input type="checkbox" [(ngModel)]="pdfOptions.includeClinicalRecommendations" />
-                      <span class="checkmark"></span>
-                      Clinical Recommendations
-                    </label>
-                  </div>
-
-                  <div class="option-group">
-                    <h4>Format Options</h4>
-                    <label class="option-item">
-                      <span class="option-label">Page Size:</span>
-                      <select [(ngModel)]="pdfOptions.format" class="option-select">
-                        <option value="a4">A4</option>
-                        <option value="letter">Letter</option>
-                      </select>
-                    </label>
-                    <label class="option-item">
-                      <span class="option-label">Orientation:</span>
-                      <select [(ngModel)]="pdfOptions.orientation" class="option-select">
-                        <option value="portrait">Portrait</option>
-                        <option value="landscape">Landscape</option>
-                      </select>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="modal-footer">
-                  <button class="btn btn--secondary" (click)="closePDFOptions()">
-                    Cancel
-                  </button>
-                  <button
-                    class="btn btn--primary"
-                    (click)="generateCustomPDF()"
-                    [disabled]="isGeneratingPDF">
-                    <span *ngIf="!isGeneratingPDF">Generate PDF</span>
-                    <span *ngIf="isGeneratingPDF">Generating...</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-
+          </div>
         </div>
       </div>
     </div>

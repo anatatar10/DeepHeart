@@ -89,37 +89,6 @@ export class ECGService {
     );
   }
 
-  uploadSingleECG(file: File, patientId: string, notes?: string): Observable<ECGUploadResponse> {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('patientId', patientId);
-    if (notes) {
-      formData.append('notes', notes);
-    }
-
-    return this.http.post<ECGUploadResponse>(`${this.apiUrl}/upload/single`, formData);
-  }
-
-  getECGDetails(ecgId: string): Observable<ECGDetails> {
-    return this.http.get<ECGDetails>(`${this.apiUrl}/${ecgId}`);
-  }
-
-  getPatientECGs(patientId: string): Observable<ECGDetails[]> {
-    return this.http.get<ECGDetails[]>(`${this.apiUrl}/patient/${patientId}`);
-  }
-
-  getECGImage(ecgId: string): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/${ecgId}/image`, {
-      responseType: 'blob'
-    });
-  }
-
-  getGradCAM(ecgId: string): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/${ecgId}/gradcam`, {
-      responseType: 'blob'
-    });
-  }
-
   downloadReport(ecgId: string): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/${ecgId}/report`, {
       responseType: 'blob'
@@ -127,41 +96,15 @@ export class ECGService {
   }
 
   saveToPatientRecord(ecgId: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${ecgId}/save-to-record`, {});
+    const url = `${this.apiUrl}/${ecgId}/save-to-record`;
+
+    const token = localStorage.getItem('auth_token');
+    const headers = token
+      ? new HttpHeaders({ Authorization: `Bearer ${token}` })
+      : new HttpHeaders();
+
+    return this.http.post(url, {}, { headers: headers });
   }
 
-  deleteECG(ecgId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${ecgId}`);
-  }
 
-  getECGHistory(page: number = 0, size: number = 10): Observable<any> {
-    const params = { page: page.toString(), size: size.toString() };
-    return this.http.get(`${this.apiUrl}/history`, { params });
-  }
-
-  reanalyzeECG(ecgId: string, parameters?: any): Observable<ECGUploadResponse> {
-    return this.http.post<ECGUploadResponse>(`${this.apiUrl}/${ecgId}/reanalyze`, parameters || {});
-  }
-
-  getModelMetrics(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/metrics`);
-  }
-
-  validateECGFile(file: File): Observable<{ valid: boolean; message?: string }> {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    return this.http.post<{ valid: boolean; message?: string }>(
-      `${this.apiUrl}/validate`,
-      formData
-    );
-  }
-
-  getSupportedFormats(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/supported-formats`);
-  }
-
-  resetUploadProgress(): void {
-    this.uploadProgressSubject.next(0);
-  }
 }

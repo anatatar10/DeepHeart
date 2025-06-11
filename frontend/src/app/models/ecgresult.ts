@@ -1,4 +1,5 @@
-// Update your ECGResult interface to include these fields
+// models/ecgresult.ts - Updated ECGResult interface
+
 export interface ECGResult {
   id?: string;
   model: string;
@@ -18,4 +19,7 @@ export interface ECGResult {
     resnet_primary: string;
     agreement_note: string;
   };
+  // New properties for patient record functionality
+  patientId?: string;
+  savedToRecord?: boolean;
 }
