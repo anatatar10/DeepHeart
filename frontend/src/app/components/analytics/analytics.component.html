@@ -35,7 +35,7 @@
       <div class="metric-card">
         <div class="metric-icon">🎯</div>
         <div class="metric-content">
-          <h3>{{ analyticsData.modelPerformance.accuracy }}%</h3>
+          <h3>{{ analyticsData.modelPerformance.accuracy | number:'1.2-2'}}%</h3>
           <p>Model Accuracy</p>
         </div>
       </div>
@@ -43,7 +43,7 @@
       <div class="metric-card">
         <div class="metric-icon">⚡</div>
         <div class="metric-content">
-          <h3>{{ analyticsData.averageProcessingTime }}s</h3>
+          <h3>{{ analyticsData.averageProcessingTime | number:'1.2-2' }}s</h3>
           <p>Avg Processing Time</p>
         </div>
       </div>
@@ -51,7 +51,7 @@
       <div class="metric-card">
         <div class="metric-icon">📈</div>
         <div class="metric-content">
-          <h3>{{ analyticsData.modelPerformance.auc }}%</h3>
+          <h3>{{ analyticsData.modelPerformance.auc | number:'1.2-2'}}%</h3>
           <p>AUC Score</p>
         </div>
       </div>

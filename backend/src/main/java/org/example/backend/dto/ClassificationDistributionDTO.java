@@ -1,6 +1,7 @@
 package org.example.backend.dto;
 
 public class ClassificationDistributionDTO {
+
     private long norm;
     private long mi;
     private long sttc;
@@ -17,19 +18,43 @@ public class ClassificationDistributionDTO {
         this.hyp = hyp;
     }
 
-    // Getters and setters
-    public long getNorm() { return norm; }
-    public void setNorm(long norm) { this.norm = norm; }
+    public long getNorm() {
+        return norm;
+    }
 
-    public long getMi() { return mi; }
-    public void setMi(long mi) { this.mi = mi; }
+    public void setNorm(long norm) {
+        this.norm = norm;
+    }
 
-    public long getSttc() { return sttc; }
-    public void setSttc(long sttc) { this.sttc = sttc; }
+    public long getMi() {
+        return mi;
+    }
 
-    public long getCd() { return cd; }
-    public void setCd(long cd) { this.cd = cd; }
+    public void setMi(long mi) {
+        this.mi = mi;
+    }
 
-    public long getHyp() { return hyp; }
-    public void setHyp(long hyp) { this.hyp = hyp; }
+    public long getSttc() {
+        return sttc;
+    }
+
+    public void setSttc(long sttc) {
+        this.sttc = sttc;
+    }
+
+    public long getCd() {
+        return cd;
+    }
+
+    public void setCd(long cd) {
+        this.cd = cd;
+    }
+
+    public long getHyp() {
+        return hyp;
+    }
+
+    public void setHyp(long hyp) {
+        this.hyp = hyp;
+    }
 }

@@ -1,6 +1,7 @@
 package org.example.backend.dto;
 
 public class WeeklyTrendsDTO {
+
     private String date;
     private long uploads;
 
@@ -11,10 +12,19 @@ public class WeeklyTrendsDTO {
         this.uploads = uploads;
     }
 
-    // Getters and setters
-    public String getDate() { return date; }
-    public void setDate(String date) { this.date = date; }
+    public String getDate() {
+        return date;
+    }
 
-    public long getUploads() { return uploads; }
-    public void setUploads(long uploads) { this.uploads = uploads; }
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public long getUploads() {
+        return uploads;
+    }
+
+    public void setUploads(long uploads) {
+        this.uploads = uploads;
+    }
 }

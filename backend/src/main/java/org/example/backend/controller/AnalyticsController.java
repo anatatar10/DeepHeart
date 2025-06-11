@@ -1,9 +1,8 @@
 package org.example.backend.controller;
 
-import org.example.backend.dto.AnalyticsDataDTO;
-import org.example.backend.dto.ClassificationDistributionDTO;
-import org.example.backend.dto.ModelPerformanceDTO;
-import org.example.backend.dto.WeeklyTrendsDTO;
+import org.example.backend.dto.*;
+import org.example.backend.model.User;
+import org.example.backend.repository.UserRepository;
 import org.example.backend.service.AnalyticsService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,89 +19,82 @@ import java.util.List;
 public class AnalyticsController {
 
     private final AnalyticsService analyticsService;
+    private final UserRepository userRepository;
 
-    public AnalyticsController(AnalyticsService analyticsService) {
+    public AnalyticsController(AnalyticsService analyticsService, UserRepository userRepository) {
         this.analyticsService = analyticsService;
+        this.userRepository = userRepository;
     }
 
-    // Get complete analytics dashboard data
+    private User getCurrentDoctor(Authentication authentication) {
+        String email = authentication.getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+    }
+
     @GetMapping("/dashboard")
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     public ResponseEntity<AnalyticsDataDTO> getDashboardAnalytics(Authentication authentication) {
-        String email = authentication.getName();
-        AnalyticsDataDTO analytics = analyticsService.getDashboardAnalytics(email);
+        User doctor = getCurrentDoctor(authentication);
+        AnalyticsDataDTO analytics = analyticsService.getDashboardAnalytics(doctor);
         return ResponseEntity.ok(analytics);
     }
 
-    // Get classification distribution
     @GetMapping("/distribution")
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     public ResponseEntity<ClassificationDistributionDTO> getClassificationDistribution(Authentication authentication) {
-        String email = authentication.getName();
-        ClassificationDistributionDTO distribution = analyticsService.getClassificationDistribution(email);
+        User doctor = getCurrentDoctor(authentication);
+        ClassificationDistributionDTO distribution = analyticsService.getClassificationDistribution(doctor);
         return ResponseEntity.ok(distribution);
     }
 
-    // Get weekly trends
     @GetMapping("/trends")
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     public ResponseEntity<List<WeeklyTrendsDTO>> getWeeklyTrends(Authentication authentication) {
-        String email = authentication.getName();
-        List<WeeklyTrendsDTO> trends = analyticsService.getWeeklyTrends(email);
+        User doctor = getCurrentDoctor(authentication);
+        List<WeeklyTrendsDTO> trends = analyticsService.getWeeklyTrends(doctor);
         return ResponseEntity.ok(trends);
     }
-
-
 
     @GetMapping("/performance")
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     public ResponseEntity<ModelPerformanceDTO> getModelPerformance(Authentication authentication) {
-        String email = authentication.getName();
-        ModelPerformanceDTO performance = analyticsService.calculateModelPerformance(email);
+        User doctor = getCurrentDoctor(authentication);
+        ModelPerformanceDTO performance = analyticsService.calculateModelPerformance(doctor);
         return ResponseEntity.ok(performance);
     }
 
-    // Export analytics report as PDF
     @GetMapping("/export/report")
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     public ResponseEntity<byte[]> exportAnalyticsReport(Authentication authentication) {
-        String email = authentication.getName();
-        byte[] reportData = analyticsService.generateAnalyticsReport(email);
-
+        User doctor = getCurrentDoctor(authentication);
+        byte[] reportData = analyticsService.generateAnalyticsReport(doctor);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDispositionFormData("attachment", "analytics-report.pdf");
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(reportData);
+        return ResponseEntity.ok().headers(headers).body(reportData);
     }
 
-    // Export patient data as Excel
     @GetMapping("/export/patients")
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     public ResponseEntity<byte[]> exportPatientData(Authentication authentication) {
-        String email = authentication.getName();
-        byte[] excelData = analyticsService.generatePatientDataExport(email);
-
+        User doctor = getCurrentDoctor(authentication);
+        byte[] excelData = analyticsService.generatePatientDataExport(doctor);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDispositionFormData("attachment", "patient-data.xlsx");
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(excelData);
+        return ResponseEntity.ok().headers(headers).body(excelData);
     }
 
-    // Get analytics for a specific date range
     @GetMapping("/range")
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
     public ResponseEntity<AnalyticsDataDTO> getAnalyticsForDateRange(
             @RequestParam String startDate,
             @RequestParam String endDate,
             Authentication authentication) {
-        String email = authentication.getName();
-        AnalyticsDataDTO analytics = analyticsService.getAnalyticsForDateRange(email, startDate, endDate);
+
+        User doctor = getCurrentDoctor(authentication);
+        AnalyticsDataDTO analytics = analyticsService.getAnalyticsForDateRange(doctor, startDate, endDate);
         return ResponseEntity.ok(analytics);
     }
 }

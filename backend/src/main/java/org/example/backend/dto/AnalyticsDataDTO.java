@@ -3,6 +3,7 @@ package org.example.backend.dto;
 import java.util.List;
 
 public class AnalyticsDataDTO {
+
     private ClassificationDistributionDTO classificationDistribution;
     private List<WeeklyTrendsDTO> weeklyTrends;
     private ModelPerformanceDTO modelPerformance;
@@ -23,19 +24,43 @@ public class AnalyticsDataDTO {
         this.averageProcessingTime = averageProcessingTime;
     }
 
-    // Getters and setters
-    public ClassificationDistributionDTO getClassificationDistribution() { return classificationDistribution; }
-    public void setClassificationDistribution(ClassificationDistributionDTO classificationDistribution) { this.classificationDistribution = classificationDistribution; }
+    public ClassificationDistributionDTO getClassificationDistribution() {
+        return classificationDistribution;
+    }
 
-    public List<WeeklyTrendsDTO> getWeeklyTrends() { return weeklyTrends; }
-    public void setWeeklyTrends(List<WeeklyTrendsDTO> weeklyTrends) { this.weeklyTrends = weeklyTrends; }
+    public void setClassificationDistribution(ClassificationDistributionDTO classificationDistribution) {
+        this.classificationDistribution = classificationDistribution;
+    }
 
-    public ModelPerformanceDTO getModelPerformance() { return modelPerformance; }
-    public void setModelPerformance(ModelPerformanceDTO modelPerformance) { this.modelPerformance = modelPerformance; }
+    public List<WeeklyTrendsDTO> getWeeklyTrends() {
+        return weeklyTrends;
+    }
 
-    public long getTotalProcessedThisMonth() { return totalProcessedThisMonth; }
-    public void setTotalProcessedThisMonth(long totalProcessedThisMonth) { this.totalProcessedThisMonth = totalProcessedThisMonth; }
+    public void setWeeklyTrends(List<WeeklyTrendsDTO> weeklyTrends) {
+        this.weeklyTrends = weeklyTrends;
+    }
 
-    public double getAverageProcessingTime() { return averageProcessingTime; }
-    public void setAverageProcessingTime(double averageProcessingTime) { this.averageProcessingTime = averageProcessingTime; }
+    public ModelPerformanceDTO getModelPerformance() {
+        return modelPerformance;
+    }
+
+    public void setModelPerformance(ModelPerformanceDTO modelPerformance) {
+        this.modelPerformance = modelPerformance;
+    }
+
+    public long getTotalProcessedThisMonth() {
+        return totalProcessedThisMonth;
+    }
+
+    public void setTotalProcessedThisMonth(long totalProcessedThisMonth) {
+        this.totalProcessedThisMonth = totalProcessedThisMonth;
+    }
+
+    public double getAverageProcessingTime() {
+        return averageProcessingTime;
+    }
+
+    public void setAverageProcessingTime(double averageProcessingTime) {
+        this.averageProcessingTime = averageProcessingTime;
+    }
 }
