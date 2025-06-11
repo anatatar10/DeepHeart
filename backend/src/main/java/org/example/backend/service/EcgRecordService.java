@@ -29,4 +29,12 @@ public class EcgRecordService {
     public EcgRecord getById(UUID id) {
         return ecgRecordRepository.findById(id).orElse(null);
     }
+
+    public List<EcgRecord> getEcgRecordsForPatient(UUID patientId) {
+        return ecgRecordRepository.findByUserId(patientId);
+    }
+
+    public List<EcgRecord> getAllRecords() {
+        return ecgRecordRepository.findAll();
+    }
 }

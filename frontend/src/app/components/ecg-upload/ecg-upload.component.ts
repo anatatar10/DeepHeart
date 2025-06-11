@@ -336,99 +336,137 @@ export class EcgUploadComponent implements OnInit {
   }
 
   // Modified handleUploadProgress method
+  // Corrected handleUploadProgress method for your Angular component
+
+  // Add this enhanced debugging to your handleUploadProgress method
+
   private handleUploadProgress(response: any): void {
     if (response.type === 'progress') {
-      // Use real HTTP progress if available
       const realProgress = response.progress || 0;
       if (realProgress > this.uploadProgress) {
         this.uploadProgress = Math.min(realProgress, 95);
       }
     } else if (response.type === 'result') {
-      // Clear interval and finish progress
       if ((this as any).progressInterval) {
         clearInterval((this as any).progressInterval);
       }
 
-      // Complete progress
       this.uploadProgress = 100;
-
-      // Process results
       const results = response.data?.results;
 
       if (Array.isArray(results)) {
-        // Process each file's results
         const processedResults: ExtendedECGResult[] = [];
 
-        results.forEach((r: any) => {
-          console.log('Processing result:', r);
+        results.forEach((r: any, index: number) => {
+          console.log(`=== DEBUGGING RESULT ${index + 1} ===`);
+          console.log('Full result object:', r);
+          console.log('Available keys:', Object.keys(r));
 
-          // Main ensemble result
+          // Check for individual model data
+          console.log('Has allPredictions?', !!r.allPredictions);
+          console.log('Has model1 directly?', !!r.model1);
+          console.log('Has model2 directly?', !!r.model2);
+          console.log('Has ensemble directly?', !!r.ensemble);
+
+          if (r.allPredictions) {
+            console.log('allPredictions keys:', Object.keys(r.allPredictions));
+            console.log('allPredictions.model1 exists?', !!r.allPredictions.model1);
+            console.log('allPredictions.model2 exists?', !!r.allPredictions.model2);
+          }
+
+          // Try both possible structures
+          let model1Data = r.allPredictions?.model1 || r.model1;
+          let model2Data = r.allPredictions?.model2 || r.model2;
+          let ensembleData = r.allPredictions?.ensemble || r.ensemble;
+
+          console.log('Found model1Data?', !!model1Data);
+          console.log('Found model2Data?', !!model2Data);
+          console.log('Found ensembleData?', !!ensembleData);
+
+          // Add individual model results if found
+          if (model1Data) {
+            console.log('Processing Model1 (DenseNet):', model1Data);
+            const model1Result: ExtendedECGResult = {
+              id: r.id ?? undefined,
+              model: 'DenseNet121',
+              classification: model1Data.classification,
+              confidence: model1Data.confidence,
+              probabilities: model1Data.probabilities || {},
+              fileName: r.fileName,
+              timestamp: r.timestamp,
+              description: this.getClassificationDescription(model1Data.classification),
+              confidence_level: this.getConfidenceLevel(model1Data.confidence),
+              clinical_recommendation: this.getClinicalRecommendation(model1Data.confidence),
+              secondary_findings: {},
+              model_info: { model_type: 'DenseNet121', prediction_method: 'normalized_sigmoid' },
+              patientId: this.uploadForm.get('patientId')?.value
+            };
+            processedResults.push(model1Result);
+            console.log('✅ Added DenseNet121 result');
+          } else {
+            console.log('❌ No Model1 data found');
+          }
+
+          if (model2Data) {
+            console.log('Processing Model2 (ResNet):', model2Data);
+            const model2Result: ExtendedECGResult = {
+              id: r.id ?? undefined,
+              model: 'ResNet50',
+              classification: model2Data.classification,
+              confidence: model2Data.confidence,
+              probabilities: model2Data.probabilities || {},
+              fileName: r.fileName,
+              timestamp: r.timestamp,
+              description: this.getClassificationDescription(model2Data.classification),
+              confidence_level: this.getConfidenceLevel(model2Data.confidence),
+              clinical_recommendation: this.getClinicalRecommendation(model2Data.confidence),
+              secondary_findings: {},
+              model_info: { model_type: 'ResNet50', prediction_method: 'normalized_sigmoid' },
+              patientId: this.uploadForm.get('patientId')?.value
+            };
+            processedResults.push(model2Result);
+            console.log('✅ Added ResNet50 result');
+          } else {
+            console.log('❌ No Model2 data found');
+          }
+
+          // Add ensemble result
+          const finalEnsembleData = ensembleData || {
+            classification: r.classification,
+            confidence: r.confidence,
+            probabilities: r.probabilities,
+            description: r.description,
+            confidence_level: r.confidence_level,
+            clinical_recommendation: r.clinical_recommendation
+          };
+
+          console.log('Processing Ensemble:', finalEnsembleData);
           const ensembleResult: ExtendedECGResult = {
             id: r.id ?? undefined,
             model: 'Ensemble Prediction',
-            classification: r.classification,
-            confidence: r.confidence,
-            probabilities: r.probabilities || {},
+            classification: finalEnsembleData.classification,
+            confidence: finalEnsembleData.confidence,
+            probabilities: finalEnsembleData.probabilities || {},
             fileName: r.fileName,
             timestamp: r.timestamp,
-            description: r.description || '',
-            confidence_level: r.confidence_level || '',
-            clinical_recommendation: r.clinical_recommendation || '',
-            secondary_findings: r.secondary_findings || {},
+            description: finalEnsembleData.description || this.getClassificationDescription(finalEnsembleData.classification),
+            confidence_level: finalEnsembleData.confidence_level || this.getConfidenceLevel(finalEnsembleData.confidence),
+            clinical_recommendation: finalEnsembleData.clinical_recommendation || this.getClinicalRecommendation(finalEnsembleData.confidence),
+            secondary_findings: {},
             model_info: { model_type: 'Ensemble', prediction_method: 'dual_model_average' },
-            // Add patient ID for tracking
             patientId: this.uploadForm.get('patientId')?.value
           };
           processedResults.push(ensembleResult);
+          console.log('✅ Added Ensemble result');
 
-          // Individual model results (if available)
-          if (r.allPredictions) {
-            // Model 1 (DenseNet)
-            if (r.allPredictions.model1) {
-              const model1 = r.allPredictions.model1;
-              const model1Result: ExtendedECGResult = {
-                id: r.id ?? undefined,
-                model: 'DenseNet121',
-                classification: model1.classification,
-                confidence: model1.confidence,
-                probabilities: model1.probabilities || {},
-                fileName: r.fileName,
-                timestamp: r.timestamp,
-                description: this.getClassificationDescription(model1.classification),
-                confidence_level: this.getConfidenceLevel(model1.confidence),
-                clinical_recommendation: this.getClinicalRecommendation(model1.confidence),
-                secondary_findings: {},
-                model_info: { model_type: 'DenseNet121', prediction_method: 'normalized_sigmoid' },
-                patientId: this.uploadForm.get('patientId')?.value
-              };
-              processedResults.push(model1Result);
-            }
-
-            // Model 2 (ResNet)
-            if (r.allPredictions.model2) {
-              const model2 = r.allPredictions.model2;
-              const model2Result: ExtendedECGResult = {
-                id: r.id ?? undefined,
-                model: 'ResNet50',
-                classification: model2.classification,
-                confidence: model2.confidence,
-                probabilities: model2.probabilities || {},
-                fileName: r.fileName,
-                timestamp: r.timestamp,
-                description: this.getClassificationDescription(model2.classification),
-                confidence_level: this.getConfidenceLevel(model2.confidence),
-                clinical_recommendation: this.getClinicalRecommendation(model2.confidence),
-                secondary_findings: {},
-                model_info: { model_type: 'ResNet', prediction_method: 'normalized_sigmoid' },
-                patientId: this.uploadForm.get('patientId')?.value
-              };
-              processedResults.push(model2Result);
-            }
-          }
+          console.log(`=== END DEBUGGING RESULT ${index + 1} ===`);
         });
 
         this.ecgResults = processedResults;
-        console.log('Final processed results:', this.ecgResults);
+        console.log('🎯 FINAL SUMMARY:');
+        console.log('Total processed results:', this.ecgResults.length);
+        console.log('Model names:', this.ecgResults.map(r => r.model));
+        console.log('Classifications:', this.ecgResults.map(r => r.classification));
       }
     }
   }

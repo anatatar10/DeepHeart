@@ -7,9 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/patients")
@@ -71,4 +69,6 @@ public class PatientController {
         List<PatientDTO> patients = patientService.searchPatients(name);
         return ResponseEntity.ok(patients);
     }
+
+
 }

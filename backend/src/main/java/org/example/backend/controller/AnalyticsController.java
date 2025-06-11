@@ -52,11 +52,13 @@ public class AnalyticsController {
         return ResponseEntity.ok(trends);
     }
 
-    // Get model performance metrics
+
+
     @GetMapping("/performance")
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
-    public ResponseEntity<ModelPerformanceDTO> getModelPerformance() {
-        ModelPerformanceDTO performance = analyticsService.getModelPerformance();
+    public ResponseEntity<ModelPerformanceDTO> getModelPerformance(Authentication authentication) {
+        String email = authentication.getName();
+        ModelPerformanceDTO performance = analyticsService.calculateModelPerformance(email);
         return ResponseEntity.ok(performance);
     }
 

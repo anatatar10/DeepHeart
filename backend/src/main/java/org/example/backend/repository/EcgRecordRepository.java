@@ -22,4 +22,6 @@ public interface EcgRecordRepository extends JpaRepository<EcgRecord, UUID> {
     List<EcgRecord> findByDoctor(User doctor);
 
     List<EcgRecord> findByDoctorAndDateAddedBetween(User doctor, LocalDateTime start, LocalDateTime end);
+
+    List<EcgRecord> findByDoctorAndDateAddedAfter(User doctor, LocalDateTime start);
 }

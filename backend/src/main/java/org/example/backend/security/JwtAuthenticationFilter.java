@@ -33,18 +33,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String jwt = parseJwt(request);
-        if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
-            String username = jwtUtils.getUsernameFromJwtToken(jwt);
+        String requestURI = request.getRequestURI();
+        System.out.println("🔍 JWT Filter - Processing request: " + requestURI);
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        try {
+            String jwt = parseJwt(request);
+            System.out.println("🔍 JWT Filter - JWT token: " + (jwt != null ? jwt.substring(0, Math.min(jwt.length(), 20)) + "..." : "null"));
 
-            UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            if (jwt != null) {
+                System.out.println("🔍 JWT Filter - Validating token...");
+                boolean isValid = jwtUtils.validateJwtToken(jwt);
+                System.out.println("🔍 JWT Filter - Token validation result: " + isValid);
 
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                if (isValid) {
+                    String username = jwtUtils.getUsernameFromJwtToken(jwt);
+                    System.out.println("🔍 JWT Filter - Extracted username: " + username);
 
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    System.out.println("🔍 JWT Filter - Loaded user details for: " + userDetails.getUsername());
+
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    System.out.println("✅ JWT Filter - Authentication set successfully for: " + username);
+                } else {
+                    System.err.println("❌ JWT Filter - Token validation failed");
+                }
+            } else {
+                System.out.println("❌ JWT Filter - No JWT token found in request");
+
+                // Log the authorization header for debugging
+                String authHeader = request.getHeader("Authorization");
+                System.out.println("🔍 JWT Filter - Authorization header: " +
+                        (authHeader != null ? authHeader.substring(0, Math.min(authHeader.length(), 30)) + "..." : "null"));
+            }
+        } catch (Exception e) {
+            System.err.println("❌ JWT Filter - Error processing token: " + e.getMessage());
+            e.printStackTrace();
         }
 
         filterChain.doFilter(request, response);
@@ -52,10 +80,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
+        System.out.println("🔍 JWT Filter - parseJwt - Raw Authorization header: " +
+                (headerAuth != null ? headerAuth.substring(0, Math.min(headerAuth.length(), 50)) + "..." : "null"));
 
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7);
+            String token = headerAuth.substring(7);
+            System.out.println("🔍 JWT Filter - parseJwt - Extracted token length: " + token.length());
+            return token;
         }
+
+        System.out.println("❌ JWT Filter - parseJwt - No valid Bearer token found");
         return null;
     }
 }

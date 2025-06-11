@@ -166,4 +166,6 @@ public class PatientService {
         // Generate username from name
         return name.toLowerCase().replaceAll(" ", ".") + System.currentTimeMillis() % 1000;
     }
+
+
 }

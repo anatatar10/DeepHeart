@@ -5,7 +5,7 @@
     <div class="header-content">
       <div class="header-title">
         <div class="title-info">
-          <h2>Medical Records</h2>
+          <h2>Patient Records</h2>
           <div class="patient-info" *ngIf="patient">
             <h3>{{ patient.name }}</h3>
             <div class="patient-summary">
@@ -26,99 +26,227 @@
         <button class="btn btn-secondary" (click)="printRecords()">
           🖨️ Print Records
         </button>
-        <button class="btn btn-primary" (click)="openAddModal()">
-          + Add Record
-        </button>
       </div>
     </div>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading" class="loading-container">
-    <div class="loading-spinner"></div>
-    <p>Loading medical records...</p>
+  <!-- Tab Navigation -->
+  <div class="tab-navigation">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'medical'"
+      (click)="switchTab('medical')">
+      📋 Medical Records
+      <span class="record-count">{{ records.length }}</span>
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'ecg'"
+      (click)="switchTab('ecg')">
+      💓 ECG Records
+      <span class="record-count">{{ ecgRecords.length }}</span>
+    </button>
   </div>
 
-  <!-- Records Timeline -->
-  <div *ngIf="!loading" class="records-timeline">
-    <div *ngFor="let record of records; let i = index" class="record-item">
-      <div class="record-date-marker">
-        <div class="date-circle">{{ (i + 1) }}</div>
-        <div class="date-info">
-          <div class="date-primary">{{ formatDate(record.date) }}</div>
-          <div class="visit-type">{{ record.visitType }}</div>
-        </div>
-      </div>
+  <!-- Medical Records Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'medical'">
+    <div class="tab-header">
+      <button class="btn btn-primary" (click)="openAddModal()">
+        + Add Medical Record
+      </button>
+    </div>
 
-      <div class="record-content">
-        <div class="record-header">
-          <div class="record-info">
-            <h3 class="diagnosis">{{ record.diagnosis }}</h3>
-            <p class="doctor-name">Dr. {{ record.doctorName }}</p>
-          </div>
-          <div class="record-actions">
-            <button class="btn btn-sm btn-secondary" (click)="editRecord(record)">
-              📝 Edit
-            </button>
-            <button class="btn btn-sm btn-danger" (click)="deleteRecord(record)">
-              🗑️ Delete
-            </button>
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Loading medical records...</p>
+    </div>
+
+    <!-- Records Timeline -->
+    <div *ngIf="!loading" class="records-timeline">
+      <div *ngFor="let record of records; let i = index" class="record-item">
+        <div class="record-date-marker">
+          <div class="date-circle">{{ (i + 1) }}</div>
+          <div class="date-info">
+            <div class="date-primary">{{ formatDate(record.date) }}</div>
+            <div class="visit-type">{{ record.visitType }}</div>
           </div>
         </div>
 
-        <div class="record-details">
-          <!-- Vital Signs -->
-          <div class="detail-section">
-            <h4>Vital Signs</h4>
-            <div class="vital-signs-grid">
-              <div class="vital-item">
-                <span class="vital-label">Blood Pressure:</span>
-                <span class="vital-value">{{ record.vitalSigns.bloodPressure || 'N/A' }}</span>
-              </div>
-              <div class="vital-item">
-                <span class="vital-label">Heart Rate:</span>
-                <span class="vital-value">{{ record.vitalSigns.heartRate || 'N/A' }} bpm</span>
-              </div>
-              <div class="vital-item">
-                <span class="vital-label">Temperature:</span>
-                <span class="vital-value">{{ record.vitalSigns.temperature || 'N/A' }}°C</span>
-              </div>
-              <div class="vital-item">
-                <span class="vital-label">Weight:</span>
-                <span class="vital-value">{{ record.vitalSigns.weight || 'N/A' }} kg</span>
-              </div>
+        <div class="record-content">
+          <div class="record-header">
+            <div class="record-info">
+              <h3 class="diagnosis">{{ record.diagnosis }}</h3>
+              <p class="doctor-name">Dr. {{ record.doctorName }}</p>
+            </div>
+            <div class="record-actions">
+              <button class="btn btn-sm btn-secondary" (click)="editRecord(record)">
+                📝 Edit
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="deleteRecord(record)">
+                🗑️ Delete
+              </button>
             </div>
           </div>
 
-          <!-- Treatment & Medications -->
-          <div class="detail-section">
-            <h4>Treatment</h4>
-            <p class="treatment-text">{{ record.treatment }}</p>
-          </div>
+          <div class="record-details">
+            <!-- Vital Signs -->
+            <div class="detail-section">
+              <h4>Vital Signs</h4>
+              <div class="vital-signs-grid">
+                <div class="vital-item">
+                  <span class="vital-label">Blood Pressure:</span>
+                  <span class="vital-value">{{ record.vitalSigns.bloodPressure || 'N/A' }}</span>
+                </div>
+                <div class="vital-item">
+                  <span class="vital-label">Heart Rate:</span>
+                  <span class="vital-value">{{ record.vitalSigns.heartRate || 'N/A' }} bpm</span>
+                </div>
+                <div class="vital-item">
+                  <span class="vital-label">Temperature:</span>
+                  <span class="vital-value">{{ record.vitalSigns.temperature || 'N/A' }}°C</span>
+                </div>
+                <div class="vital-item">
+                  <span class="vital-label">Weight:</span>
+                  <span class="vital-value">{{ record.vitalSigns.weight || 'N/A' }} kg</span>
+                </div>
+              </div>
+            </div>
 
-          <div class="detail-section" *ngIf="record.medications">
-            <h4>Medications</h4>
-            <p class="medications-text">{{ record.medications }}</p>
-          </div>
+            <!-- Treatment & Medications -->
+            <div class="detail-section">
+              <h4>Treatment</h4>
+              <p class="treatment-text">{{ record.treatment }}</p>
+            </div>
 
-          <!-- Notes -->
-          <div class="detail-section" *ngIf="record.notes">
-            <h4>Notes</h4>
-            <p class="notes-text">{{ record.notes }}</p>
+            <div class="detail-section" *ngIf="record.medications">
+              <h4>Medications</h4>
+              <p class="medications-text">{{ record.medications }}</p>
+            </div>
+
+            <!-- Notes -->
+            <div class="detail-section" *ngIf="record.notes">
+              <h4>Notes</h4>
+              <p class="notes-text">{{ record.notes }}</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Empty State for Medical Records -->
+    <div *ngIf="!loading && records.length === 0" class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h3>No medical records found</h3>
+      <p>Start by adding the first medical record for this patient.</p>
+      <button class="btn btn-primary" (click)="openAddModal()">
+        Add First Record
+      </button>
+    </div>
   </div>
 
-  <!-- Empty State -->
-  <div *ngIf="!loading && records.length === 0" class="empty-state">
-    <div class="empty-icon">📋</div>
-    <h3>No medical records found</h3>
-    <p>Start by adding the first medical record for this patient.</p>
-    <button class="btn btn-primary" (click)="openAddModal()">
-      Add First Record
-    </button>
+  <!-- ECG Records Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'ecg'">
+    <div *ngIf="loadingECG" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Loading ECG records...</p>
+    </div>
+
+    <!-- ECG Records Timeline -->
+    <div *ngIf="!loadingECG" class="records-timeline">
+      <div *ngFor="let ecgRecord of ecgRecords; let i = index" class="record-item ecg-record">
+        <div class="record-date-marker">
+          <div class="date-circle ecg-circle"></div>
+          <div class="date-info">
+            <div class="date-primary">{{ formatDateTime(ecgRecord.timestamp) }}</div>
+            <div class="visit-type">{{ ecgRecord.model }}</div>
+          </div>
+        </div>
+
+        <div class="record-content">
+          <div class="record-header">
+            <div class="record-info">
+              <h3 class="diagnosis" [style.color]="getClassificationColor(ecgRecord.classification)">
+                {{ ecgRecord.classification }} - {{ ecgRecord.fileName }}
+              </h3>
+              <p class="doctor-name">Confidence: {{ ecgRecord.confidence.toFixed(1) }}%
+                <span class="confidence-badge" [style.background-color]="getConfidenceColor(ecgRecord.confidence)">
+                  {{ ecgRecord.confidence_level }}
+                </span>
+              </p>
+            </div>
+            <div class="record-actions">
+              <button class="btn btn-sm btn-ecg-view" (click)="viewEcgImage(ecgRecord)">
+                View ECG Image
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="deleteECGRecord(ecgRecord)">
+                 Delete
+              </button>
+            </div>
+          </div>
+
+          <div class="record-details">
+            <!-- ECG Analysis -->
+            <div class="detail-section">
+              <h4>ECG Analysis Results</h4>
+              <div class="ecg-analysis-grid">
+                <div class="analysis-item">
+                  <span class="analysis-label">Classification:</span>
+                  <span class="analysis-value" [style.color]="getClassificationColor(ecgRecord.classification)">
+                    {{ ecgRecord.classification }}
+                  </span>
+                </div>
+                <div class="analysis-item">
+                  <span class="analysis-label">Confidence:</span>
+                  <span class="analysis-value">{{ ecgRecord.confidence.toFixed(1) }}%</span>
+                </div>
+                <div class="analysis-item">
+                  <span class="analysis-label">Model:</span>
+                  <span class="analysis-value">{{ ecgRecord.model }}</span>
+                </div>
+                <div class="analysis-item">
+                  <span class="analysis-label">File:</span>
+                  <span class="analysis-value">{{ ecgRecord.fileName }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Description/Interpretation -->
+            <div class="detail-section" *ngIf="ecgRecord.description">
+              <h4>Clinical Interpretation</h4>
+              <p class="interpretation-text">{{ ecgRecord.description }}</p>
+            </div>
+
+            <!-- Clinical Recommendation -->
+            <div class="detail-section" *ngIf="ecgRecord.clinical_recommendation">
+              <h4>Clinical Recommendation</h4>
+              <p class="recommendation-text">{{ ecgRecord.clinical_recommendation }}</p>
+            </div>
+
+            <!-- Probabilities -->
+            <div class="detail-section" *ngIf="ecgRecord.probabilities && (ecgRecord.probabilities | keyvalue).length > 0">
+              <h4>Classification Probabilities</h4>
+              <div class="probabilities-grid">
+                <div class="probability-item" *ngFor="let item of ecgRecord.probabilities | keyvalue">
+                  <span class="probability-label">{{ item.key }}:</span>
+                  <span class="probability-value">{{ item.value.toFixed(1) }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State for ECG Records -->
+    <div *ngIf="!loadingECG && ecgRecords.length === 0" class="empty-state">
+      <div class="empty-icon">💓</div>
+      <h3>No ECG records found</h3>
+      <p>ECG records will appear here when uploaded and saved from the ECG Upload page.</p>
+      <button class="btn btn-primary" (click)="router.navigate(['/ecg-upload'])">
+        🔗 Go to ECG Upload
+      </button>
+    </div>
   </div>
 </div>
 
@@ -283,6 +411,112 @@
       >
         {{ editingRecord ? 'Update Record' : 'Add Record' }}
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ECG Viewer Modal -->
+<div *ngIf="showECGViewer" class="modal ecg-viewer-modal" (click)="closeECGViewer()">
+  <div class="modal-content ecg-viewer-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>ECG Record - {{ formatDateTime(selectedECGRecord?.timestamp || '') }}</h3>
+      <button class="modal-close" (click)="closeECGViewer()">&times;</button>
+    </div>
+
+    <div class="modal-body" *ngIf="selectedECGRecord">
+      <!-- ECG Summary -->
+      <div class="ecg-summary">
+        <div class="summary-header">
+          <h4>{{ selectedECGRecord.fileName }}</h4>
+          <div class="classification-badge" [style.background-color]="getClassificationColor(selectedECGRecord.classification)">
+            {{ selectedECGRecord.classification }}
+          </div>
+        </div>
+
+        <div class="summary-stats">
+          <div class="stat-item">
+            <span class="stat-label">Confidence:</span>
+            <span class="stat-value" [style.color]="getConfidenceColor(selectedECGRecord.confidence)">
+              {{ selectedECGRecord.confidence.toFixed(1) }}%
+            </span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Model:</span>
+            <span class="stat-value">{{ selectedECGRecord.model }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Analyzed:</span>
+            <span class="stat-value">{{ formatDateTime(selectedECGRecord.timestamp) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ECG Details -->
+      <div class="ecg-details">
+        <div class="details-row">
+          <div class="detail-column">
+            <h4>Analysis Results</h4>
+            <div class="detail-list">
+              <div class="detail-item">
+                <span class="detail-label">Classification:</span>
+                <span class="detail-value" [style.color]="getClassificationColor(selectedECGRecord.classification)">
+                  {{ selectedECGRecord.classification }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Confidence Level:</span>
+                <span class="detail-value">{{ selectedECGRecord.confidence_level }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Model Used:</span>
+                <span class="detail-value">{{ selectedECGRecord.model }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-column" *ngIf="selectedECGRecord.probabilities">
+            <h4>Classification Probabilities</h4>
+            <div class="detail-list">
+              <div class="detail-item" *ngFor="let item of selectedECGRecord.probabilities | keyvalue">
+                <span class="detail-label">{{ item.key }}:</span>
+                <span class="detail-value">{{ item.value.toFixed(1) }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="interpretation-section" *ngIf="selectedECGRecord.description">
+          <h4>Clinical Interpretation</h4>
+          <p>{{ selectedECGRecord.description }}</p>
+        </div>
+
+        <div class="recommendation-section" *ngIf="selectedECGRecord.clinical_recommendation">
+          <h4>Clinical Recommendation</h4>
+          <p>{{ selectedECGRecord.clinical_recommendation }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeECGViewer()">Close</button>
+      <button class="btn btn-primary" (click)="downloadECGReport(selectedECGRecord)" *ngIf="selectedECGRecord?.id">
+        📄 Download Report
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showEcgImageModal" class="modal" (click)="closeEcgImageModal()">
+  <div class="modal-content large-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>ECG Image Viewer</h3>
+      <button class="modal-close" (click)="closeEcgImageModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <img [src]="ecgImageUrl" alt="ECG Image" class="ecg-image-display" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeEcgImageModal()">Close</button>
     </div>
   </div>
 </div>

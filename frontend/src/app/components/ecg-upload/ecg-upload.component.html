@@ -1,46 +1,39 @@
 <div class="ecg-upload-container upload-page">
 
-  <!-- Patient Selection Form - MOVED TO TOP -->
+  <!-- Patient Selection Form -->
   <div class="patient-box">
     <h3>Patient Information</h3>
     <div class="patient-select-section">
       <label class="form-label">Select Patient *</label>
       <form [formGroup]="uploadForm">
-        <select
-          class="form-control"
-          formControlName="patientId"
-          [class.is-invalid]="uploadForm.get('patientId')?.invalid && uploadForm.get('patientId')?.touched">
+        <select class="form-control" formControlName="patientId"
+                [class.is-invalid]="uploadForm.get('patientId')?.invalid && uploadForm.get('patientId')?.touched">
           <option value="">Select a patient...</option>
           <option *ngFor="let patient of patients" [value]="patient.id">
-            {{patient.name}} ({{patient.id}})
+            {{ patient.name }} ({{ patient.id }})
           </option>
         </select>
-        <div *ngIf="uploadForm.get('patientId')?.invalid && uploadForm.get('patientId')?.touched"
-             class="invalid-feedback">
+        <div *ngIf="uploadForm.get('patientId')?.invalid && uploadForm.get('patientId')?.touched" class="invalid-feedback">
           Please select a patient before uploading
         </div>
       </form>
     </div>
-
     <div *ngIf="getSelectedPatientName()" class="selected-patient-info">
-      <strong>Selected Patient:</strong> {{getSelectedPatientName()}}
+      <strong>Selected Patient:</strong> {{ getSelectedPatientName() }}
     </div>
   </div>
 
-  <!-- Upload Area Grid -->
+  <!-- Upload Area -->
   <div class="upload-grid">
     <div class="card upload-card">
-      <div
-        #uploadArea
-        class="upload-area"
-        [class.dragover]="isDragOver"
-        [class.disabled]="isUploading"
-        (click)="openFileDialog()"
-        (dragover)="onDragOver($event)"
-        (dragleave)="onDragLeave($event)"
-        (drop)="onDrop($event)">
+      <div #uploadArea class="upload-area"
+           [class.dragover]="isDragOver"
+           [class.disabled]="isUploading"
+           (click)="openFileDialog()"
+           (dragover)="onDragOver($event)"
+           (dragleave)="onDragLeave($event)"
+           (drop)="onDrop($event)">
 
-        <!-- Upload Icon and Text -->
         <div *ngIf="!isUploading && !selectedFile" class="upload-content">
           <div class="upload-icon">📁</div>
           <h3>Drag & Drop ECG Image</h3>
@@ -49,77 +42,41 @@
             <small>Supported formats: PNG, JPG, JPEG, DICOM (.dcm)</small>
             <small>Maximum file size: 50MB</small>
           </div>
-          <button
-            type="button"
-            class="btn btn--primary"
-            [disabled]="isUploading">
-            Select File
-          </button>
+          <button type="button" class="btn btn--primary" [disabled]="isUploading">Select File</button>
         </div>
 
-        <!-- Selected File Display -->
         <div *ngIf="selectedFile && !isUploading" class="selected-file-display">
           <div class="file-preview">
             <div class="file-icon">📄</div>
             <div class="file-details">
-              <div class="file-name">{{selectedFile.name}}</div>
-              <div class="file-size">{{formatFileSize(selectedFile.size)}}</div>
+              <div class="file-name">{{ selectedFile.name }}</div>
+              <div class="file-size">{{ formatFileSize(selectedFile.size) }}</div>
             </div>
-            <button
-              type="button"
-              class="remove-btn"
-              (click)="removeFile(); $event.stopPropagation()"
-              [disabled]="isUploading"
-              title="Remove file">
-              ✕
-            </button>
+            <button type="button" class="remove-btn" (click)="removeFile(); $event.stopPropagation()" title="Remove file">✕</button>
           </div>
         </div>
 
-        <!-- Upload Progress -->
         <div *ngIf="isUploading" class="upload-progress">
           <div class="progress-bar">
-            <div
-              class="progress-fill"
-              [style.width.%]="uploadProgress">
-            </div>
+            <div class="progress-fill" [style.width.%]="uploadProgress"></div>
           </div>
-          <p class="progress-text">
-            Processing... {{uploadProgress.toFixed(1)}}%
-          </p>
+          <p class="progress-text">Processing... {{ uploadProgress.toFixed(1) }}%</p>
         </div>
 
-        <!-- Hidden file input -->
-        <input
-          #fileInput
-          type="file"
-          accept=".png,.jpg,.jpeg,.dcm,image/*"
-          (change)="onFileSelect($event)"
-          style="display: none;">
+        <input #fileInput type="file" accept=".png,.jpg,.jpeg,.dcm,image/*" (change)="onFileSelect($event)" hidden>
       </div>
 
-      <!-- Upload Actions -->
       <div *ngIf="selectedFile" class="upload-actions">
-        <button
-          type="button"
-          class="btn btn--primary btn--large"
-          (click)="uploadFile()"
-          [disabled]="isUploading || !selectedFile || uploadForm.invalid">
+        <button type="button" class="btn btn--primary btn--large" (click)="uploadFile()"
+                [disabled]="isUploading || !selectedFile || uploadForm.invalid">
           <span *ngIf="!isUploading">Upload & Analyze</span>
           <span *ngIf="isUploading">Processing...</span>
         </button>
-        <button
-          type="button"
-          class="btn btn--secondary"
-          (click)="clearFile()"
-          [disabled]="isUploading">
-          Clear
-        </button>
+        <button type="button" class="btn btn--secondary" (click)="clearFile()" [disabled]="isUploading">Clear</button>
       </div>
 
       <div *ngIf="selectedFile && uploadForm.invalid" class="validation-message">
-        <span class="warning-icon">⚠️</span>
-        Please select a patient above before uploading
+        <span class="warning-icon">⚠️</span> Please select a patient above before uploading
       </div>
     </div>
 
@@ -128,20 +85,24 @@
       <h3>Classification Results</h3>
       <div class="results-content">
 
-        <!-- Empty State -->
+        <!-- Empty state -->
         <div *ngIf="ecgResults.length === 0" class="empty-state">
           <div class="empty-icon">📊</div>
           <p>Upload an ECG image to see classification results</p>
         </div>
 
-        <!-- Results List -->
+        <!-- Loop for ALL models -->
         <div *ngIf="ecgResults.length > 0" class="results-list">
           <div *ngFor="let result of ecgResults" class="classification-result">
 
-            <!-- Result Header -->
+            <!-- MODEL TITLE -->
+            <div class="model-header">
+              <h4>{{ result.model }}</h4>
+            </div>
+
+            <!-- Classification & confidence -->
             <div class="result-header">
-              <span class="result-class status"
-                    [ngClass]="'status--' + getClassificationColor(result.classification)">
+              <span class="result-class status" [ngClass]="'status--' + getClassificationColor(result.classification)">
                 {{ result.classification || 'N/A' }}
               </span>
               <span class="result-confidence">
@@ -149,12 +110,7 @@
               </span>
             </div>
 
-            <!-- Model Info -->
-            <div class="model-type" *ngIf="result.model">
-              <p><strong>Model:</strong> {{ result.model }}</p>
-            </div>
-
-            <!-- File Info -->
+            <!-- File info -->
             <div class="result-file-info">
               <strong>{{ result.fileName || 'ECG File' }}</strong>
               <small>{{ result.timestamp ? (result.timestamp | date:'medium') : 'N/A' }}</small>
@@ -169,45 +125,33 @@
             </div>
 
             <!-- Description -->
-            <div class="result-description">
-              <p>
-                {{ result.description || getClassificationDescription(result.classification) }}
-              </p>
+            <div class="result-description" *ngIf="result.description">
+              <p>{{ result.description }}</p>
             </div>
 
-            <!-- Simplified Actions -->
-            <div class="result-actions">
-              <button
-                type="button"
-                class="action-btn download-btn"
-                (click)="downloadReport(result)"
-                [disabled]="isGeneratingPDF"
-                title="Download PDF Report">
-                <span class="btn-icon" *ngIf="!isGeneratingPDF">📄</span>
-                <span class="btn-icon" *ngIf="isGeneratingPDF">⏳</span>
-                <span *ngIf="!isGeneratingPDF">Download PDF</span>
-                <span *ngIf="isGeneratingPDF">Generating...</span>
-              </button>
+            <!-- Clinical Recommendation -->
+            <div *ngIf="result.clinical_recommendation">
+              <h5>Clinical Recommendation:</h5>
+              <p>{{ result.clinical_recommendation }}</p>
+            </div>
 
-              <button
-                type="button"
-                class="action-btn save-btn"
-                [class.saved]="isResultSaved(result)"
-                [disabled]="isSavingToRecord || isResultSaved(result)"
-                (click)="saveToPatientRecord(result)"
-                [title]="isResultSaved(result) ? 'Already saved to patient record' : 'Save to Patient Record'">
-                <span class="btn-icon" *ngIf="!isSavingToRecord && !isResultSaved(result)">💾</span>
-                <span class="btn-icon" *ngIf="isSavingToRecord">⏳</span>
-                <span class="btn-icon" *ngIf="isResultSaved(result)">✅</span>
-                <span *ngIf="!isSavingToRecord && !isResultSaved(result)">Save to Record</span>
-                <span *ngIf="isSavingToRecord">Saving...</span>
-                <span *ngIf="isResultSaved(result)">Saved to Record</span>
+            <!-- Save + PDF actions -->
+            <div class="result-actions">
+              <button type="button" class="action-btn download-btn" (click)="downloadReport(result)">
+                📄 Download PDF
+              </button>
+              <button type="button" class="action-btn save-btn"
+                      [disabled]="isSavingToRecord || isResultSaved(result)"
+                      (click)="saveToPatientRecord(result)">
+                💾 Save to Record
               </button>
             </div>
 
           </div>
         </div>
+
       </div>
     </div>
+
   </div>
 </div>

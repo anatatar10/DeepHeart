@@ -1,0 +1,171 @@
+<!-- edit-profile.component.html -->
+<div class="edit-profile-modal" [class.active]="isVisible" (click)="onBackdropClick($event)">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Edit Profile</h2>
+      <button class="close-btn" (click)="closeModal()" type="button">
+        <span>×</span>
+      </button>
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+      <div class="form-sections">
+
+        <!-- Basic Information Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <span class="section-icon">👤</span>
+            Basic Information
+          </h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Full Name *</label>
+              <input
+                id="name"
+                type="text"
+                formControlName="name"
+                class="form-control"
+                [class.error]="isFieldInvalid('name')"
+                placeholder="Enter your full name">
+              <div class="error-message" *ngIf="isFieldInvalid('name')">
+                Full name is required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="username">Username *</label>
+              <input
+                id="username"
+                type="text"
+                formControlName="username"
+                class="form-control"
+                [class.error]="isFieldInvalid('username')"
+                placeholder="Enter your username">
+              <div class="error-message" *ngIf="isFieldInvalid('username')">
+                Username is required
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email Address *</label>
+              <input
+                id="email"
+                type="email"
+                formControlName="email"
+                class="form-control"
+                [class.error]="isFieldInvalid('email')"
+                placeholder="Enter your email">
+              <div class="error-message" *ngIf="isFieldInvalid('email')">
+                <span *ngIf="profileForm.get('email')?.errors?.['required']">Email is required</span>
+                <span *ngIf="profileForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input
+                id="phone"
+                type="tel"
+                formControlName="phone"
+                class="form-control"
+                placeholder="Enter your phone number">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="gender">Gender</label>
+              <select
+                id="gender"
+                formControlName="gender"
+                class="form-control">
+                <option value="">Select gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+                <option value="prefer_not_to_say">Prefer not to say</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="birthdate">Date of Birth</label>
+              <input
+                id="birthdate"
+                type="date"
+                formControlName="birthdate"
+                class="form-control">
+            </div>
+          </div>
+        </div>
+
+        <!-- Medical Information Section (for patients only) -->
+        <div class="form-section" *ngIf="isPatientRole()">
+          <h3 class="section-title">
+            <span class="section-icon">🏥</span>
+            Medical Information
+          </h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="smokingStatus">Smoking Status</label>
+              <select
+                id="smokingStatus"
+                formControlName="smokingStatus"
+                class="form-control">
+                <option value="">Select smoking status</option>
+                <option value="Never smoked">Never smoked</option>
+                <option value="Former smoker">Former smoker</option>
+                <option value="Current smoker">Current smoker</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="bloodPressure">Blood Pressure</label>
+              <input
+                id="bloodPressure"
+                type="text"
+                formControlName="bloodPressure"
+                class="form-control"
+                placeholder="e.g., 120/80">
+              <small class="form-hint">Format: systolic/diastolic (e.g., 120/80)</small>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="medicalHistoryString">Medical History</label>
+              <textarea
+                id="medicalHistoryString"
+                formControlName="medicalHistoryString"
+                class="form-control"
+                rows="3"
+                placeholder="Enter medical conditions separated by commas"></textarea>
+              <small class="form-hint">Separate multiple conditions with commas</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn--outline"
+          (click)="closeModal()"
+          [disabled]="isSubmitting">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn btn--primary"
+          [disabled]="profileForm.invalid || isSubmitting">
+          <span *ngIf="isSubmitting">Saving...</span>
+          <span *ngIf="!isSubmitting">Save Changes</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

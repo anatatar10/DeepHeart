@@ -35,7 +35,10 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtUtils, userDetailsService);
+        System.out.println("✅ SecurityConfig - Creating JWT Authentication Filter bean");
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtils, userDetailsService);
+        System.out.println("✅ SecurityConfig - JWT Authentication Filter bean created successfully");
+        return filter;
     }
 
     @Bean
@@ -60,17 +63,26 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/register").permitAll()
                         .requestMatchers("/api/users/login").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/test/**").permitAll()
-                        // Temporarily allow patients endpoint for testing
-                        .requestMatchers("/api/patients/**").permitAll()
-                        // Protected endpoints - these come AFTER public ones
+
+                        // Public file access (for ECG image viewer)
+                        .requestMatchers("/api/ecg/files/**").permitAll()
+
+                        // ECG endpoints (all others require authentication)
+                        .requestMatchers("/api/ecg/upload").authenticated()
+                        .requestMatchers("/api/ecg/upload/**").authenticated()
+                        .requestMatchers("/api/ecg/patient/*/records").authenticated()
+                        .requestMatchers("/api/ecg/*/save-to-record").authenticated()
+                        .requestMatchers("/api/ecg/*/report").authenticated()
+                        .requestMatchers("/api/ecg/**").authenticated()
+
+                        // Protected endpoints
                         .requestMatchers("/api/dashboard/**").authenticated()
                         .requestMatchers("/api/users/**").authenticated()
                         .anyRequest().authenticated()
                 );
 
-        // Add JWT filter before UsernamePasswordAuthenticationFilter
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        System.out.println("✅ SecurityConfig - JWT Authentication Filter registered");
 
         return http.build();
     }
@@ -82,6 +94,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // Add cache time for preflight requests
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
