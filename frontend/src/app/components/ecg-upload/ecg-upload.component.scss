@@ -1,6 +1,6 @@
 .upload-page {
   padding: 3rem 1rem;
-  color: white;
+  color: var(--color-text);
   text-align: center;
 
   h2 {
@@ -9,7 +9,7 @@
   }
 
   .section-subtitle {
-    color: #ccc;
+    color: var(--color-text-secondary);
     margin-bottom: 2.5rem;
   }
 
@@ -22,16 +22,16 @@
   }
 
   .card {
-    background: #1f2937;
+    background: var(--color-surface);
     padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
   }
 
   .upload-area {
-    border: 2px dashed #4ade80;
+    border: 2px dashed var(--color-primary);
     padding: 1.5rem;
-    border-radius: 8px;
+    border-radius: var(--radius-base);
     cursor: pointer;
 
     .upload-icon {
@@ -54,7 +54,7 @@
 
     .empty-state {
       font-style: italic;
-      color: #aaa;
+      color: var(--color-text-secondary);
     }
   }
 
@@ -62,31 +62,31 @@
     margin-top: 2rem;
     max-width: 100%;
     width: 100%;
-    background: #1f2937;
+    background: var(--color-surface);
     padding: 2rem;
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     text-align: left;
 
     select {
       width: 100%;
       padding: 0.75rem;
-      background: #111827;
-      border: 1px solid #4b5563;
-      color: #fff;
-      border-radius: 8px;
+      background: var(--color-background);
+      border: 1px solid var(--color-border);
+      color: var(--color-text);
+      border-radius: var(--radius-base);
       margin-bottom: 1rem;
     }
 
     .add-btn {
-      background: #3b82f6;
+      background: var(--color-primary);
       border: none;
       padding: 0.5rem 1rem;
-      border-radius: 8px;
-      color: white;
+      border-radius: var(--radius-base);
+      color: var(--color-btn-primary-text);
       cursor: pointer;
 
       &:hover {
-        background: #2563eb;
+        background: var(--color-primary-hover);
       }
     }
   }

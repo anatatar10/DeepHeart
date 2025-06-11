@@ -1,0 +1,219 @@
+<!-- ecg-upload.component.html -->
+<div class="ecg-upload-container">
+  <div class="section-header">
+    <h2>ECG Upload & Analysis</h2>
+    <p class="section-subtitle">Upload ECG images for AI-powered classification</p>
+  </div>
+
+  <!-- Patient Selection Form -->
+  <div class="card mb-4">
+    <div class="card__body">
+      <h3>Patient Information</h3>
+      <form [formGroup]="uploadForm" class="patient-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Select Patient *</label>
+            <select
+              class="form-control"
+              formControlName="patientId"
+              [class.is-invalid]="uploadForm.get('patientId')?.invalid && uploadForm.get('patientId')?.touched">
+              <option value="">Select a patient...</option>
+              <option *ngFor="let patient of patients" [value]="patient.id">
+                {{patient.name}} ({{patient.id}})
+              </option>
+            </select>
+            <div *ngIf="uploadForm.get('patientId')?.invalid && uploadForm.get('patientId')?.touched"
+                 class="invalid-feedback">
+              Please select a patient
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Notes (Optional)</label>
+            <textarea
+              class="form-control"
+              formControlName="notes"
+              placeholder="Additional notes about the ECG..."
+              rows="3">
+            </textarea>
+          </div>
+        </div>
+
+        <div *ngIf="getSelectedPatientName()" class="selected-patient-info">
+          <strong>Selected Patient:</strong> {{getSelectedPatientName()}}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Upload Area -->
+  <div class="upload-grid">
+    <div class="card upload-card">
+      <div class="card__body">
+        <div
+          #uploadArea
+          class="upload-area"
+          [class.dragover]="isDragOver"
+          [class.disabled]="isUploading"
+          (click)="openFileDialog()">
+
+          <!-- Upload Icon and Text -->
+          <div *ngIf="!isUploading" class="upload-content">
+            <div class="upload-icon">📁</div>
+            <h3>Drag & Drop ECG Images</h3>
+            <p>Or click to browse files</p>
+            <div class="file-info">
+              <small>Supported formats: PNG, JPG, JPEG, DICOM (.dcm)</small>
+              <small>Maximum 10 files, 50MB each</small>
+            </div>
+            <button
+              type="button"
+              class="btn btn--primary"
+              [disabled]="isUploading">
+              Select Files
+            </button>
+          </div>
+
+          <!-- Upload Progress -->
+          <div *ngIf="isUploading" class="upload-progress">
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                [style.width.%]="uploadProgress">
+              </div>
+            </div>
+            <p class="progress-text">
+              Processing... {{uploadProgress.toFixed(1)}}%
+            </p>
+            <div class="upload-stats">
+              <span>{{uploadStatus.processed}}/{{uploadStatus.total}} files processed</span>
+              <span *ngIf="uploadStatus.failed > 0" class="text-error">
+                ({{uploadStatus.failed}} failed)
+              </span>
+            </div>
+          </div>
+
+          <!-- Hidden file input -->
+          <input
+            #fileInput
+            type="file"
+            multiple
+            accept=".png,.jpg,.jpeg,.dcm,image/*"
+            (change)="onFileSelect($event)"
+            style="display: none;">
+        </div>
+
+        <!-- Selected Files List -->
+        <div *ngIf="selectedFiles.length > 0" class="selected-files">
+          <h4>Selected Files ({{selectedFiles.length}})</h4>
+          <div class="file-list">
+            <div *ngFor="let file of selectedFiles; let i = index" class="file-item">
+              <div class="file-info">
+                <span class="file-name">{{file.name}}</span>
+                <span class="file-size">{{formatFileSize(file.size)}}</span>
+              </div>
+              <button
+                type="button"
+                class="btn btn--outline btn--sm"
+                (click)="removeFile(i)"
+                [disabled]="isUploading">
+                Remove
+              </button>
+            </div>
+          </div>
+
+          <div class="file-actions">
+            <button
+              type="button"
+              class="btn btn--primary"
+              (click)="uploadFiles()"
+              [disabled]="isUploading || uploadForm.invalid">
+              <span *ngIf="!isUploading">Upload & Analyze</span>
+              <span *ngIf="isUploading">Processing...</span>
+            </button>
+            <button
+              type="button"
+              class="btn btn--secondary"
+              (click)="clearFiles()"
+              [disabled]="isUploading">
+              Clear All
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Area -->
+    <div class="card results-card">
+      <div class="card__body">
+        <h3>Classification Results</h3>
+        <div class="results-content">
+
+          <!-- Empty State -->
+          <div *ngIf="ecgResults.length === 0" class="empty-state">
+            <p>Upload ECG images to see classification results</p>
+          </div>
+
+          <!-- Results List -->
+          <div *ngIf="ecgResults.length > 0" class="results-list">
+            <div *ngFor="let result of ecgResults" class="classification-result">
+
+              <!-- Result Header -->
+              <div class="result-header">
+                <span class="result-class status"
+                      [ngClass]="'status--' + getClassificationColor(result.classification)">
+                  {{result.classification}}
+                </span>
+                <span class="result-confidence">
+                  {{(result.confidence * 100).toFixed(1)}}%
+                </span>
+              </div>
+
+              <!-- File Info -->
+              <div class="result-file-info">
+                <strong>{{result.fileName}}</strong>
+                <small>{{result.timestamp | date:'medium'}}</small>
+              </div>
+
+              <!-- Probabilities -->
+              <div class="probabilities">
+                <div *ngFor="let prob of result.probabilities | keyvalue"
+                     class="probability-item">
+                  <span class="probability-label">{{prob.key}}</span>
+                  <span class="probability-value">{{(prob.value * 100).toFixed(1)}}%</span>
+                </div>
+              </div>
+
+              <!-- Description -->
+              <div class="result-description">
+                <p>{{getClassificationDescription(result.classification)}}</p>
+              </div>
+
+              <!-- Actions -->
+              <div class="result-actions">
+                <button
+                  type="button"
+                  class="btn btn--primary btn--sm"
+                  (click)="viewDetailedResults(result)">
+                  View Details
+                </button>
+                <button
+                  type="button"
+                  class="btn btn--outline btn--sm"
+                  (click)="downloadReport(result)">
+                  Download PDF
+                </button>
+                <button
+                  type="button"
+                  class="btn btn--outline btn--sm"
+                  (click)="saveToPatientRecord(result)">
+                  Save to Record
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
