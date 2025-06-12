@@ -13,18 +13,14 @@ public class AiPredictionService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // Main method - runs both models automatically
     public String predictEcgImage(File imageFile) {
         try {
-            System.out.println("🧠 Starting dual model prediction for: " + imageFile.getAbsolutePath());
+            System.out.println("Starting dual model prediction for: " + imageFile.getAbsolutePath());
 
-            // Run DenseNet prediction
             String denseNetResult = runDenseNetPrediction(imageFile);
 
-            // Run ResNet prediction immediately after
             String resNetResult = runResNetPrediction(imageFile);
 
-            // Combine results
             return combineModelResults(denseNetResult, resNetResult);
 
         } catch (Exception e) {
@@ -51,15 +47,15 @@ public class AiPredictionService {
             String line;
 
             while ((line = reader.readLine()) != null) {
-                System.out.println("📤 DenseNet says: " + line);
+                System.out.println("DenseNet says: " + line);
                 output.append(line).append("\n");
             }
 
             int exitCode = process.waitFor();
-            System.out.println("✅ DenseNet exited with code: " + exitCode);
+            System.out.println("DenseNet exited with code: " + exitCode);
 
             String result = output.toString().trim();
-            System.out.println("🔍 DenseNet result: " + result);
+            System.out.println("DenseNet result: " + result);
 
             return result;
 
@@ -72,7 +68,7 @@ public class AiPredictionService {
     // ResNet prediction method
     private String runResNetPrediction(File imageFile) {
         try {
-            System.out.println("🔬 Running ResNet prediction...");
+            System.out.println("Running ResNet prediction...");
 
             ProcessBuilder pb = new ProcessBuilder(
                     "python3",
@@ -87,15 +83,15 @@ public class AiPredictionService {
             String line;
 
             while ((line = reader.readLine()) != null) {
-                System.out.println("📤 ResNet says: " + line);
+                System.out.println("ResNet says: " + line);
                 output.append(line).append("\n");
             }
 
             int exitCode = process.waitFor();
-            System.out.println("✅ ResNet exited with code: " + exitCode);
+            System.out.println("ResNet exited with code: " + exitCode);
 
             String result = output.toString().trim();
-            System.out.println("🔍 ResNet result: " + result);
+            System.out.println("ResNet result: " + result);
 
             return result;
 

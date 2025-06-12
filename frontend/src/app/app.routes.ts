@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   { path: '', redirectTo: '/auth', pathMatch: 'full' },
   { path: 'auth', loadComponent: () => import('./auth/auth.component').then(m => m.AuthComponent) },
+  { path: 'forgot-password', loadComponent: () => import('./forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
   { path: 'dashboard-doctor', loadComponent: () => import('./dashboard-doctor/dashboard-doctor.component').then(m => m.DashboardDoctorComponent) },
   { path: 'dashboard-patient', loadComponent: () => import('./dashboard-patient/dashboard-patient.component').then(m => m.DashboardPatientComponent) },
   { path: 'analytics', loadComponent: () => import('./components/analytics/analytics.component').then(m => m.AnalyticsComponent) },

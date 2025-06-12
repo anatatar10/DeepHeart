@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public class PatientDTO {
     private UUID id;
-    private String patientId; // Generated patient ID like PAT001
+    private String patientId;
     private String name;
     private String email;
     private String phone;

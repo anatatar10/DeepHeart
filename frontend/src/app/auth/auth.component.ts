@@ -1,4 +1,4 @@
-// auth.component.ts
+// auth.component.ts - Fixed version
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -24,7 +24,6 @@ export class AuthComponent {
   loading = false;
   signinBgImage = '/assets/images/signin-bg.png';
 
-
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
@@ -40,8 +39,8 @@ export class AuthComponent {
       name: ['', [Validators.required, Validators.minLength(2)]],
       role: ['', Validators.required],
       phone: ['', [Validators.required, Validators.pattern('^\\d{10}$')]],
-      birthdate: ['', Validators.required], // Made required
-      gender: ['', Validators.required] // Made required
+      birthdate: ['', Validators.required],
+      gender: ['', Validators.required]
     }, { validators: this.passwordsMatch });
 
     this.signinForm = this.fb.group({
@@ -93,6 +92,11 @@ export class AuthComponent {
       return 'Passwords do not match';
     }
     return '';
+  }
+
+  // Navigate to forgot password page
+  goToForgotPassword() {
+    this.router.navigate(['/forgot-password']);
   }
 
   onSubmit() {

@@ -19,7 +19,15 @@ export class AppComponent {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         console.log('🔍 Current URL:', this.router.url);
-        this.isAuthRoute = this.router.url.includes('/auth');
+
+        // Check if current route should hide navbar (auth or forgot-password)
+        const hideNavbarRoutes = ['/auth', '/forgot-password'];
+        const currentUrl = this.router.url.split('?')[0]; // Remove query parameters
+
+        this.isAuthRoute = hideNavbarRoutes.some(route =>
+          currentUrl === route || currentUrl.startsWith(route + '/')
+        );
+
         console.log('🔍 Is auth route (navbar hidden):', this.isAuthRoute);
         console.log('🔍 Should show navbar:', !this.isAuthRoute);
       }

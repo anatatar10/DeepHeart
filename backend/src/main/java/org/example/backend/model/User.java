@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+// Also add this import at the top of your User.java file:
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -38,12 +40,11 @@ public class User {
     @Column(length = 10)
     private String gender;
 
-    // Additional fields for patient information
     @Column(length = 50)
-    private String smokingStatus; // "Never smoked", "Former smoker", "Current smoker"
+    private String smokingStatus;
 
     @Column(length = 20)
-    private String bloodPressure; // e.g., "120/80"
+    private String bloodPressure;
 
     @ElementCollection
     @CollectionTable(name = "user_medical_history", joinColumns = @JoinColumn(name = "user_id"))
@@ -58,7 +59,34 @@ public class User {
     @JoinColumn(name = "doctor_id")
     private User doctor;
 
-    // Constructors
+
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public LocalDateTime getResetTokenExpiry() {
+        return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
+        this.resetTokenExpiry = resetTokenExpiry;
+    }
+
+    public boolean isResetTokenExpired() {
+        return resetTokenExpiry != null && resetTokenExpiry.isBefore(LocalDateTime.now());
+    }
+
+
     public User() {
         this.registrationDate = LocalDate.now();
     }
@@ -79,6 +107,10 @@ public class User {
     // Getters and setters
     public UUID getId() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getUsername() {

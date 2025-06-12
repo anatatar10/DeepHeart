@@ -5,6 +5,7 @@ import org.example.backend.model.User;
 import org.example.backend.repository.UserRepository;
 import org.example.backend.security.CustomUserDetailsService;
 import org.example.backend.security.JwtUtils;
+import org.example.backend.service.EmailService;
 import org.example.backend.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
@@ -24,20 +26,24 @@ public class UserController {
     private final UserRepository userRepository;
     private final CustomUserDetailsService userDetailsService;
     private final JwtUtils jwtUtils;
-    private final PasswordEncoder passwordEncoder; // Remove the initialization
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+
 
     public UserController(
             UserService userService,
             UserRepository userRepository,
             CustomUserDetailsService userDetailsService,
             JwtUtils jwtUtils,
-            PasswordEncoder passwordEncoder // Add this parameter
+            PasswordEncoder passwordEncoder,
+            EmailService emailService
     ) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.userDetailsService = userDetailsService;
         this.jwtUtils = jwtUtils;
-        this.passwordEncoder = passwordEncoder; // Inject the bean
+        this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     @PostMapping
@@ -91,14 +97,170 @@ public class UserController {
                     .body(Collections.singletonMap("message", "Invalid password"));
         }
 
-        // Load UserDetails for JWT token generation
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-        String jwt = jwtUtils.generateJwtToken(userDetails.getUsername());  // Pass username string here!
+        String jwt = jwtUtils.generateJwtToken(userDetails.getUsername());
 
         Map<String, Object> response = new HashMap<>();
         response.put("user", user);
         response.put("token", jwt);
 
         return ResponseEntity.ok(response);
+    }
+
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            System.out.println("📧 Processing forgot password for email: " + email);
+
+            if (email == null || email.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Collections.singletonMap("message", "Email is required"));
+            }
+
+            // Check if user exists
+            Optional<User> userOptional = userRepository.findByEmail(email);
+            if (userOptional.isEmpty()) {
+                System.out.println("User not found for email: " + email);
+                // For security, don't reveal if email exists or not
+                return ResponseEntity.ok()
+                        .body(Collections.singletonMap("message", "If the email exists, a reset link has been sent"));
+            }
+
+            User user = userOptional.get();
+            System.out.println("User found: " + user.getEmail());
+
+            // Generate reset token and set expiry (1 hour from now)
+            String resetToken = UUID.randomUUID().toString();
+            LocalDateTime expiryTime = LocalDateTime.now().plusHours(1);
+
+            // Save token to database
+            user.setResetToken(resetToken);
+            user.setResetTokenExpiry(expiryTime);
+            userRepository.save(user);
+
+            System.out.println("Generated and saved reset token: " + resetToken);
+            System.out.println("Token expires at: " + expiryTime);
+
+            // Send email
+            emailService.sendPasswordResetEmail(email, resetToken);
+
+            return ResponseEntity.ok()
+                    .body(Collections.singletonMap("message", "Password reset instructions sent to your email"));
+
+        } catch (Exception e) {
+            System.err.println("Error in forgot password: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("message", "An error occurred while processing your request"));
+        }
+    }
+
+    @PostMapping("/verify-reset-token")
+    public ResponseEntity<?> verifyResetToken(@RequestBody Map<String, String> request) {
+        try {
+            String token = request.get("token");
+            System.out.println("🔍 Verifying reset token: " + token);
+
+            if (token == null || token.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Collections.singletonMap("message", "Token is required"));
+            }
+
+            // Find user by reset token
+            Optional<User> userOptional = userRepository.findByResetToken(token);
+            if (userOptional.isEmpty()) {
+                System.out.println("No user found with reset token: " + token);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Collections.singletonMap("message", "Invalid reset token"));
+            }
+
+            User user = userOptional.get();
+
+            // Check if token is expired
+            if (user.isResetTokenExpired()) {
+                System.out.println("Reset token expired for user: " + user.getEmail());
+                // Clear expired token
+                user.setResetToken(null);
+                user.setResetTokenExpiry(null);
+                userRepository.save(user);
+
+                return ResponseEntity.status(HttpStatus.GONE)
+                        .body(Collections.singletonMap("message", "Reset token has expired. Please request a new password reset."));
+            }
+
+            System.out.println("Token verified successfully for user: " + user.getEmail());
+            return ResponseEntity.ok()
+                    .body(Collections.singletonMap("message", "Token is valid"));
+
+        } catch (Exception e) {
+            System.err.println("Error verifying reset token: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("message", "An error occurred while verifying token"));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        try {
+            String token = request.get("token");
+            String newPassword = request.get("newPassword");
+
+            System.out.println("Processing password reset with token: " + token);
+
+            if (token == null || token.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Collections.singletonMap("message", "Token is required"));
+            }
+
+            if (newPassword == null || newPassword.length() < 6) {
+                return ResponseEntity.badRequest()
+                        .body(Collections.singletonMap("message", "Password must be at least 6 characters long"));
+            }
+
+            // Find user by reset token
+            Optional<User> userOptional = userRepository.findByResetToken(token);
+            if (userOptional.isEmpty()) {
+                System.out.println("No user found with reset token: " + token);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Collections.singletonMap("message", "Invalid reset token"));
+            }
+
+            User user = userOptional.get();
+
+            // Check if token is expired
+            if (user.isResetTokenExpired()) {
+                System.out.println("Reset token expired for user: " + user.getEmail());
+                // Clear expired token
+                user.setResetToken(null);
+                user.setResetTokenExpiry(null);
+                userRepository.save(user);
+
+                return ResponseEntity.status(HttpStatus.GONE)
+                        .body(Collections.singletonMap("message", "Reset token has expired. Please request a new password reset."));
+            }
+
+            // Update password and clear token
+            user.setPassword(passwordEncoder.encode(newPassword));
+            user.setResetToken(null);
+            user.setResetTokenExpiry(null);
+            userRepository.save(user);
+
+            System.out.println("Password reset successful for user: " + user.getEmail());
+
+            // Send confirmation email
+            emailService.sendPasswordResetConfirmation(user.getEmail());
+
+            return ResponseEntity.ok()
+                    .body(Collections.singletonMap("message", "Password has been reset successfully"));
+
+        } catch (Exception e) {
+            System.err.println("Error resetting password: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("message", "An error occurred while resetting password"));
+        }
     }
 }

@@ -1,3 +1,4 @@
+<!-- auth.component.html - Updated with clickable forgot password link -->
 <p-toast></p-toast>
 
 <div class="auth-wrapper">
@@ -44,7 +45,7 @@
           {{ loading ? 'Signing In...' : 'Sign In' }}
         </button>
 
-        <p class="forgot-pass">Forgot Password?</p>
+        <p class="forgot-pass" (click)="goToForgotPassword()">Forgot Password?</p>
       </form>
     </div>
 

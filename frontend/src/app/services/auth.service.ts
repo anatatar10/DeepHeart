@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
@@ -22,11 +22,6 @@ export class AuthService {
   login(credentials: any): Observable<any> {
     const loginUrl = `${this.apiUrl}/users/signin`;
 
-    console.log('=== LOGIN DEBUG INFO ===');
-    console.log('API URL:', this.apiUrl);
-    console.log('Full login URL:', loginUrl);
-    console.log('Credentials being sent:', credentials);
-
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
@@ -41,12 +36,129 @@ export class AuthService {
         }
       }),
       catchError((error) => {
-        console.error('=== LOGIN ERROR ===');
-        console.error('Error status:', error.status);
-        console.error('Error message:', error.message);
-        console.error('Error details:', error);
-        console.error('Request URL that failed:', loginUrl);
         return throwError(error);
+      })
+    );
+  }
+
+  // Forgot Password - Send reset email
+  forgotPassword(email: string): Observable<any> {
+    const forgotPasswordUrl = `${this.apiUrl}/users/forgot-password`;
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    });
+
+    const payload = { email };
+
+    console.log('🔧 Forgot password request details:');
+    console.log('📍 URL:', forgotPasswordUrl);
+    console.log('📦 Payload:', payload);
+    console.log('📋 Headers:', headers);
+
+    return this.http.post(forgotPasswordUrl, payload, { headers }).pipe(
+      tap((response: any) => {
+        console.log('✅ Forgot password response:', response);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Forgot password error details:');
+        console.error('Status:', error.status);
+        console.error('Status Text:', error.statusText);
+        console.error('URL:', error.url);
+        console.error('Error Body:', error.error);
+        console.error('Full Error Object:', error);
+
+        // More specific error handling
+        let errorMessage = 'Failed to send reset email. Please try again.';
+
+        if (error.status === 403) {
+          errorMessage = 'Access denied. Please check if the email exists or contact support.';
+        } else if (error.status === 404) {
+          errorMessage = 'Email address not found.';
+        } else if (error.status === 429) {
+          errorMessage = 'Too many requests. Please wait before trying again.';
+        } else if (error.status === 0) {
+          errorMessage = 'Unable to connect to server. Please check your connection.';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+
+        return throwError({ ...error, userMessage: errorMessage });
+      })
+    );
+  }
+
+  // Reset Password - Reset with token
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    const resetPasswordUrl = `${this.apiUrl}/users/reset-password`;
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    });
+
+    const payload = {
+      token,
+      newPassword,
+      confirmPassword: newPassword
+    };
+
+    console.log('🔧 Reset password request details:');
+    console.log('📍 URL:', resetPasswordUrl);
+    console.log('📦 Payload:', { ...payload, newPassword: '***', confirmPassword: '***' });
+
+    return this.http.post(resetPasswordUrl, payload, { headers }).pipe(
+      tap((response: any) => {
+        console.log('✅ Reset password response:', response);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Reset password error:', error);
+
+        let errorMessage = 'Failed to reset password. Please try again.';
+
+        if (error.status === 403) {
+          errorMessage = 'Invalid or expired reset token.';
+        } else if (error.status === 404) {
+          errorMessage = 'Reset token not found.';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+
+        return throwError({ ...error, userMessage: errorMessage });
+      })
+    );
+  }
+
+  // Verify Reset Token
+  verifyResetToken(token: string): Observable<any> {
+    const verifyTokenUrl = `${this.apiUrl}/users/verify-reset-token`;
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    });
+
+    const payload = { token };
+
+    console.log('🔧 Verify token request details:');
+    console.log('📍 URL:', verifyTokenUrl);
+    console.log('📦 Payload:', payload);
+
+    return this.http.post(verifyTokenUrl, payload, { headers }).pipe(
+      tap((response: any) => {
+        console.log('✅ Verify token response:', response);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Verify token error:', error);
+
+        let errorMessage = 'Invalid or expired reset token.';
+
+        if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+
+        return throwError({ ...error, userMessage: errorMessage });
       })
     );
   }

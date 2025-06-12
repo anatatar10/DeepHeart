@@ -62,6 +62,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/signin").permitAll()
                         .requestMatchers("/api/users/register").permitAll()
                         .requestMatchers("/api/users/login").permitAll()
+                        .requestMatchers("/api/users/forgot-password").permitAll()
+                        .requestMatchers("/api/users/verify-reset-token").permitAll()
+                        .requestMatchers("/api/users/reset-password").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
 
                         // Public file access (for ECG image viewer)

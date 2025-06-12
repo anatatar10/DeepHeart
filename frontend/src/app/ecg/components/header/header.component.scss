@@ -38,41 +38,7 @@
 }
 
 // Logo Styling
-.logo {
-  font-size: 24px;
-  font-weight: 800;
-  color: rgba(50, 184, 198, 1);
-  margin: 0;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
 
-  &::before {
-    content: '🏥';
-    font-size: 28px;
-    filter: drop-shadow(0 2px 4px rgba(50, 184, 198, 0.3));
-  }
-
-  &:hover {
-    text-decoration: none;
-    color: rgba(50, 184, 198, 0.8);
-    transform: translateY(-1px);
-    text-shadow: 0 0 20px rgba(50, 184, 198, 0.5);
-  }
-
-  .logo-icon {
-    width: 28px;
-    height: 28px;
-    transition: transform 0.3s ease;
-  }
-
-  &:hover .logo-icon {
-    transform: rotate(5deg) scale(1.1);
-  }
-}
 
 // Navigation Styling
 .nav {
