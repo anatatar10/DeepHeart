@@ -2,9 +2,13 @@
 **/.venv/
 **/__pycache__/
 **/*.pyc
+*.h5
+*.keras
+*.npy
 
 # Ignore macOS specific files
 .DS_Store
 
 # If you want to ignore full ai_models virtual env:
 ai_models/.venv/
+ai_models/data/*
