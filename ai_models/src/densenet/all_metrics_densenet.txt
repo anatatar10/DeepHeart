@@ -1,0 +1,22 @@
+Classification Report:
+              precision    recall  f1-score   support
+
+        NORM       0.80      0.86      0.83      1442
+          MI       0.66      0.51      0.57       776
+        STTC       0.76      0.60      0.67       792
+          CD       0.84      0.52      0.64       778
+         HYP       0.75      0.39      0.51       380
+
+   micro avg       0.77      0.64      0.70      4168
+   macro avg       0.76      0.58      0.65      4168
+weighted avg       0.77      0.64      0.69      4168
+ samples avg       0.69      0.66      0.66      4168
+
+Binary accuracy: 0.8601
+AUROC macro: 0.8917
+AUROC micro: 0.9068
+AUPRC macro: 0.7447
+AUPRC micro: 0.7954
+Hamming Loss: 0.1399
+Subset Accuracy: 0.5492
+MCC: 0.6143
