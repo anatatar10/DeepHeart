@@ -56,11 +56,12 @@ export class EcgUploadComponent implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('uploadArea') uploadArea!: ElementRef<HTMLDivElement>;
 
-  uploadForm: FormGroup;
+  uploadForm!: FormGroup;
   selectedFile: File | null = null;
   uploadProgress = 0;
   isUploading = false;
   isDragOver = false;
+  currentUser: any = null;
 
   ecgResults: ExtendedECGResult[] = [];
   patients: Patient[] = [];
@@ -89,14 +90,30 @@ export class EcgUploadComponent implements OnInit {
     private ecgService: ECGService,
     private patientService: PatientService,
     private notificationService: NotificationService
-  ) {
-    this.uploadForm = this.fb.group({
-      patientId: ['', Validators.required],
-      notes: ['']
-    });
-  }
+  ) {}
 
   ngOnInit(): void {
+    // Load current user first
+    const userStr = localStorage.getItem('auth_user');
+    try {
+      this.currentUser = userStr ? JSON.parse(userStr) : null;
+    } catch (e) {
+      console.error('Invalid user data in localStorage:', e);
+    }
+
+    console.log("✅ Current User loaded:", this.currentUser);
+
+    // Only now create the form — AFTER loading currentUser
+    const defaultPatientId = this.currentUser?.role === 'PATIENT' ? this.currentUser.id : '';
+    this.uploadForm = this.fb.group({
+      patientId: [defaultPatientId, Validators.required],
+      notes: ['']
+    });
+
+    // Now everything guaranteed initialized
+    console.log("✅ UploadForm initialized with value:", this.uploadForm.value);
+
+    // Load patients only if doctor
     this.loadPatients();
     this.setupDragAndDrop();
   }
@@ -107,29 +124,26 @@ export class EcgUploadComponent implements OnInit {
   }
 
   private loadPatients(): void {
-    const userStr = localStorage.getItem('auth_user');
-    let user: any = null;
+    if (!this.currentUser) return;
 
-    try {
-      user = userStr ? JSON.parse(userStr) : null;
-    } catch (e) {
-      console.error('Invalid user data in localStorage:', e);
-    }
-
-    if (user && user.role === 'DOCTOR') {
-      // fetch only patients assigned to this doctor
-      this.patientService.getPatientsByDoctor(user.id).subscribe({
+    if (this.currentUser.role === 'DOCTOR') {
+      this.patientService.getPatientsByDoctor(this.currentUser.id).subscribe({
         next: (patients: Patient[]) => {
           this.patients = patients;
           console.log('Doctor-specific patients loaded:', patients.length);
         },
         error: (error: any) => {
           this.notificationService.showError('Failed to load patients for doctor');
-          console.error('Error loading doctor patients:', error);
+          console.error('Error loading patients for doctor:', error);
         }
       });
-    } else {
-      // fallback for admin or other roles
+    }
+    else if (this.currentUser.role === 'PATIENT') {
+      // No need to load patients for patient role
+      this.patients = [];
+    }
+    else {
+      // If you still want admin fallback, you can optionally keep this
       this.patientService.getAllPatients().subscribe({
         next: (patients: Patient[]) => {
           this.patients = patients;
@@ -268,7 +282,9 @@ export class EcgUploadComponent implements OnInit {
     this.uploadProgress = 0;
 
     const formData = new FormData();
+    console.log('Current UploadForm state:', this.uploadForm.value);
     const patientId = this.uploadForm.get('patientId')?.value;
+    console.log("PatientId used for upload:", patientId);
     const notes = this.uploadForm.get('notes')?.value || '';
 
     // Append file to FormData using 'files' to match existing service
@@ -358,15 +374,7 @@ export class EcgUploadComponent implements OnInit {
         const processedResults: ExtendedECGResult[] = [];
 
         results.forEach((r: any, index: number) => {
-          console.log(`=== DEBUGGING RESULT ${index + 1} ===`);
-          console.log('Full result object:', r);
-          console.log('Available keys:', Object.keys(r));
-
-          // Check for individual model data
-          console.log('Has allPredictions?', !!r.allPredictions);
-          console.log('Has model1 directly?', !!r.model1);
-          console.log('Has model2 directly?', !!r.model2);
-          console.log('Has ensemble directly?', !!r.ensemble);
+          const recordId = r.id ?? undefined;
 
           if (r.allPredictions) {
             console.log('allPredictions keys:', Object.keys(r.allPredictions));
@@ -387,7 +395,7 @@ export class EcgUploadComponent implements OnInit {
           if (model1Data) {
             console.log('Processing Model1 (DenseNet):', model1Data);
             const model1Result: ExtendedECGResult = {
-              id: r.id ?? undefined,
+              id: recordId,
               model: 'DenseNet121',
               classification: model1Data.classification,
               confidence: model1Data.confidence,
@@ -410,7 +418,7 @@ export class EcgUploadComponent implements OnInit {
           if (model2Data) {
             console.log('Processing Model2 (ResNet):', model2Data);
             const model2Result: ExtendedECGResult = {
-              id: r.id ?? undefined,
+              id: recordId,
               model: 'ResNet50',
               classification: model2Data.classification,
               confidence: model2Data.confidence,
@@ -442,7 +450,7 @@ export class EcgUploadComponent implements OnInit {
 
           console.log('Processing Ensemble:', finalEnsembleData);
           const ensembleResult: ExtendedECGResult = {
-            id: r.id ?? undefined,
+            id: recordId,
             model: 'Ensemble Prediction',
             classification: finalEnsembleData.classification,
             confidence: finalEnsembleData.confidence,
@@ -592,7 +600,6 @@ export class EcgUploadComponent implements OnInit {
     this.isGeneratingPDF = true;
     this.notificationService.showInfo('Generating PDF report...');
 
-    // Try to download from server first
     if (result.id != null) {
       this.ecgService.downloadReport(String(result.id)).subscribe({
         next: (blob) => {
@@ -618,14 +625,12 @@ export class EcgUploadComponent implements OnInit {
     }
   }
 
-  // Enhanced Save to Patient Record Implementation
   saveToPatientRecord(result: ExtendedECGResult): void {
     if (!result.patientId) {
       this.notificationService.showError('Cannot save: Patient information is missing.');
       return;
     }
 
-    // Check if already saved
     const resultKey = this.getResultKey(result);
     if (this.savedRecords.has(resultKey)) {
       this.notificationService.showWarning('This result has already been saved to the patient record.');
@@ -635,15 +640,21 @@ export class EcgUploadComponent implements OnInit {
     this.isSavingToRecord = true;
     this.notificationService.showInfo('Saving to patient record...');
 
-    // Get patient information
-    const patient = this.patients.find(p => p.id === result.patientId);
+    let patient = this.patients.find(p => p.id === result.patientId);
+
+    if (!patient && this.currentUser?.role === 'PATIENT') {
+      patient = {
+        id: this.currentUser.id,
+        name: this.currentUser.name
+      } as Patient;
+    }
+
     if (!patient) {
       this.notificationService.showError('Patient information not found.');
       this.isSavingToRecord = false;
       return;
     }
 
-    // Prepare the record data
     const patientRecord: PatientRecord = {
       patientId: result.patientId,
       recordType: 'ECG_ANALYSIS',
@@ -653,9 +664,7 @@ export class EcgUploadComponent implements OnInit {
       createdAt: new Date()
     };
 
-    // Try using existing service method if available, otherwise simulate save
     if (this.ecgService.saveToPatientRecord && result.id) {
-      // Use existing service method
       this.ecgService.saveToPatientRecord(String(result.id)).subscribe({
         next: () => {
           this.handleSaveSuccess(result, patient, resultKey);
@@ -665,10 +674,8 @@ export class EcgUploadComponent implements OnInit {
         }
       });
     } else {
-      // Simulate API call for demonstration
       setTimeout(() => {
         try {
-          // Simulate successful save
           this.handleSaveSuccess(result, patient, resultKey);
         } catch (error) {
           this.handleSaveError(error);

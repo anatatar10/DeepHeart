@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6b34a50c-4b54-4366-bba1-6066883793a5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/predict.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ai_models.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ai_models.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/resnet.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/src/resnet.ipynb" afterDir="false" />
-    </list>
+    <list default="true" id="6b34a50c-4b54-4366-bba1-6066883793a5" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -397,6 +392,7 @@
       <workItem from="1749033748428" duration="313000" />
       <workItem from="1749041939599" duration="3237000" />
       <workItem from="1749193188678" duration="1632000" />
+      <workItem from="1749801613558" duration="3000" />
     </task>
     <servers />
   </component>

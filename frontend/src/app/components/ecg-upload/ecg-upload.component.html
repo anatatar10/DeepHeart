@@ -1,7 +1,7 @@
 <div class="ecg-upload-container upload-page">
 
-  <!-- Patient Selection Form -->
-  <div class="patient-box">
+  <!-- Patient Selection Form --><!-- Patient Selection Form -->
+  <div class="patient-box" *ngIf="currentUser?.role === 'DOCTOR'">
     <h3>Patient Information</h3>
     <div class="patient-select-section">
       <label class="form-label">Select Patient *</label>

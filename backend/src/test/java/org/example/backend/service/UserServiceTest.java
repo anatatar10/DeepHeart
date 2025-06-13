@@ -1,11 +1,14 @@
 package org.example.backend.service;
 
+import org.assertj.core.api.Assertions;
 import org.example.backend.dto.UserRequestDTO;
 import org.example.backend.model.Role;
 import org.example.backend.model.User;
 import org.example.backend.repository.UserRepository;
+import org.example.backend.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -27,8 +30,8 @@ public class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        userRepository = mock(UserRepository.class);
-        passwordEncoder = mock(PasswordEncoder.class);
+        userRepository = Mockito.mock(UserRepository.class);
+        passwordEncoder = Mockito.mock(PasswordEncoder.class);
         userService = new UserService(userRepository, passwordEncoder);
     }
 
@@ -38,12 +41,12 @@ public class UserServiceTest {
         user.setUsername("testuser");
         ReflectionTestUtils.setField(user, "id", UUID.randomUUID());
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        Mockito.when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
         Optional<User> result = userService.getUserById(user.getId());
 
-        assertThat(result).isPresent();
-        assertThat(result.get().getUsername()).isEqualTo("testuser");
+        Assertions.assertThat(result).isPresent();
+        Assertions.assertThat(result.get().getUsername()).isEqualTo("testuser");
     }
 
     @Test
@@ -58,37 +61,37 @@ public class UserServiceTest {
         dto.setGender("Male");
         dto.setBirthdate(LocalDate.of(1990, 1, 1));
 
-        when(passwordEncoder.encode(dto.getPassword())).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(passwordEncoder.encode(dto.getPassword())).thenReturn("encodedPassword");
+        Mockito.when(userRepository.save(ArgumentMatchers.any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         User createdUser = userService.createUser(dto);
 
-        assertThat(createdUser.getUsername()).isEqualTo("john_doe");
-        assertThat(createdUser.getRole()).isEqualTo(Role.PATIENT);
-        assertThat(createdUser.getPassword()).isEqualTo("encodedPassword");
+        Assertions.assertThat(createdUser.getUsername()).isEqualTo("john_doe");
+        Assertions.assertThat(createdUser.getRole()).isEqualTo(Role.PATIENT);
+        Assertions.assertThat(createdUser.getPassword()).isEqualTo("encodedPassword");
     }
 
     @Test
     void testRegisterUser_Success() {
         UserRequestDTO dto = buildValidDTO();
 
-        when(userRepository.existsByUsername(dto.getUsername())).thenReturn(false);
-        when(userRepository.existsByEmail(dto.getEmail())).thenReturn(false);
-        when(passwordEncoder.encode(dto.getPassword())).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(userRepository.existsByUsername(dto.getUsername())).thenReturn(false);
+        Mockito.when(userRepository.existsByEmail(dto.getEmail())).thenReturn(false);
+        Mockito.when(passwordEncoder.encode(dto.getPassword())).thenReturn("encodedPassword");
+        Mockito.when(userRepository.save(ArgumentMatchers.any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         User registeredUser = userService.registerUser(dto);
 
-        assertThat(registeredUser.getUsername()).isEqualTo(dto.getUsername());
-        assertThat(registeredUser.getPassword()).isEqualTo("encodedPassword");
+        Assertions.assertThat(registeredUser.getUsername()).isEqualTo(dto.getUsername());
+        Assertions.assertThat(registeredUser.getPassword()).isEqualTo("encodedPassword");
     }
 
     @Test
     void testRegisterUser_UsernameExists() {
         UserRequestDTO dto = buildValidDTO();
-        when(userRepository.existsByUsername(dto.getUsername())).thenReturn(true);
+        Mockito.when(userRepository.existsByUsername(dto.getUsername())).thenReturn(true);
 
-        assertThatThrownBy(() -> userService.registerUser(dto))
+        Assertions.assertThatThrownBy(() -> userService.registerUser(dto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Username already taken!");
     }
@@ -96,10 +99,10 @@ public class UserServiceTest {
     @Test
     void testRegisterUser_EmailExists() {
         UserRequestDTO dto = buildValidDTO();
-        when(userRepository.existsByUsername(dto.getUsername())).thenReturn(false);
-        when(userRepository.existsByEmail(dto.getEmail())).thenReturn(true);
+        Mockito.when(userRepository.existsByUsername(dto.getUsername())).thenReturn(false);
+        Mockito.when(userRepository.existsByEmail(dto.getEmail())).thenReturn(true);
 
-        assertThatThrownBy(() -> userService.registerUser(dto))
+        Assertions.assertThatThrownBy(() -> userService.registerUser(dto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Email already in use!");
     }
@@ -108,10 +111,10 @@ public class UserServiceTest {
     void testRegisterUser_PasswordTooShort() {
         UserRequestDTO dto = buildValidDTO();
         dto.setPassword("123");  // too short
-        when(userRepository.existsByUsername(dto.getUsername())).thenReturn(false);
-        when(userRepository.existsByEmail(dto.getEmail())).thenReturn(false);
+        Mockito.when(userRepository.existsByUsername(dto.getUsername())).thenReturn(false);
+        Mockito.when(userRepository.existsByEmail(dto.getEmail())).thenReturn(false);
 
-        assertThatThrownBy(() -> userService.registerUser(dto))
+        Assertions.assertThatThrownBy(() -> userService.registerUser(dto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Password must be at least 6 characters.");
     }
@@ -123,11 +126,11 @@ public class UserServiceTest {
         User user2 = new User();
         user2.setUsername("user2");
 
-        when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2));
+        Mockito.when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2));
 
         List<User> users = userService.getAllUsers();
 
-        assertThat(users).hasSize(2);
+        Assertions.assertThat(users).hasSize(2);
     }
 
     @Test
@@ -136,7 +139,7 @@ public class UserServiceTest {
 
         userService.deleteUser(userId);
 
-        verify(userRepository, times(1)).deleteById(userId);
+        Mockito.verify(userRepository, Mockito.times(1)).deleteById(userId);
     }
 
     private UserRequestDTO buildValidDTO() {

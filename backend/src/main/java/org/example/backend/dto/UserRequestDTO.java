@@ -1,6 +1,7 @@
 package org.example.backend.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class UserRequestDTO {
 
@@ -11,7 +12,11 @@ public class UserRequestDTO {
     private String phone;
     private String gender;
     private LocalDate birthdate;
-    private String role; // Store as String for flexibility
+    private String role;
+
+    private String smokingStatus;
+    private String bloodPressure;
+    private List<String> medicalHistory;
 
     // Getters and setters
     public String getName() { return name; }
@@ -37,4 +42,13 @@ public class UserRequestDTO {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+
+    public String getSmokingStatus() { return smokingStatus; }
+    public void setSmokingStatus(String smokingStatus) { this.smokingStatus = smokingStatus; }
+
+    public String getBloodPressure() { return bloodPressure; }
+    public void setBloodPressure(String bloodPressure) { this.bloodPressure = bloodPressure; }
+
+    public List<String> getMedicalHistory() { return medicalHistory; }
+    public void setMedicalHistory(List<String> medicalHistory) { this.medicalHistory = medicalHistory; }
 }

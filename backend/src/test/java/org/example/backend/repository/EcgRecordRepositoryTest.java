@@ -1,8 +1,11 @@
 package org.example.backend.repository;
 
+import org.assertj.core.api.Assertions;
 import org.example.backend.model.EcgRecord;
 import org.example.backend.model.Role;
 import org.example.backend.model.User;
+import org.example.backend.repository.EcgRecordRepository;
+import org.example.backend.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,14 +71,14 @@ public class EcgRecordRepositoryTest {
     @Test
     void testFindByDoctor() {
         List<EcgRecord> records = ecgRecordRepository.findByDoctor(doctor);
-        assertThat(records).hasSize(5);
+        Assertions.assertThat(records).hasSize(5);
     }
 
     @Test
     void testCountByDoctorAndDateAddedAfter() {
         LocalDateTime cutoffDate = LocalDateTime.now().minusDays(2);
         long count = ecgRecordRepository.countByDoctorAndDateAddedAfter(doctor, cutoffDate);
-        assertThat(count).isBetween(1L, 5L);
+        Assertions.assertThat(count).isBetween(1L, 5L);
     }
 
     @Test
@@ -83,6 +86,6 @@ public class EcgRecordRepositoryTest {
         LocalDateTime startDate = LocalDateTime.now().minusDays(4);
         LocalDateTime endDate = LocalDateTime.now();
         List<EcgRecord> records = ecgRecordRepository.findByDoctorAndDateAddedBetween(doctor, startDate, endDate);
-        assertThat(records).hasSize(5);
+        Assertions.assertThat(records).hasSize(5);
     }
 }

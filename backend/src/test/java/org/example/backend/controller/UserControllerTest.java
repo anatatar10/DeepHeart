@@ -1,25 +1,31 @@
-// File: /Users/anatatar/Desktop/Licenta/deepheart/backend/src/test/java/org/example/backend/controller/UserControllerTest.java
 
 package org.example.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.backend.controller.UserController;
 import org.example.backend.dto.UserRequestDTO;
 import org.example.backend.model.Role;
 import org.example.backend.model.User;
 import org.example.backend.repository.UserRepository;
 import org.example.backend.security.CustomUserDetailsService;
 import org.example.backend.security.JwtUtils;
+import org.example.backend.service.EmailService;
 import org.example.backend.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -56,6 +62,10 @@ class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    private EmailService emailService;
+
+
     private User getSampleUser() {
         User user = new User();
         user.setId(UUID.randomUUID());
@@ -80,27 +90,27 @@ class UserControllerTest {
 
         User createdUser = getSampleUser();
 
-        Mockito.when(userService.createUser(any(UserRequestDTO.class))).thenReturn(createdUser);
+        Mockito.when(userService.createUser(ArgumentMatchers.any(UserRequestDTO.class))).thenReturn(createdUser);
 
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequestDTO))
-                        .with(csrf())
-                        .with(user("testuser").roles("ADMIN")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("John Doe"));
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .with(SecurityMockMvcRequestPostProcessors.user("testuser").roles("ADMIN")))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("John Doe"));
     }
 
     @Test
     void testGetUserById_Found() throws Exception {
         User user = getSampleUser();
 
-        Mockito.when(userService.getUserById(eq(user.getId()))).thenReturn(Optional.of(user));
+        Mockito.when(userService.getUserById(ArgumentMatchers.eq(user.getId()))).thenReturn(Optional.of(user));
 
-        mockMvc.perform(get("/api/users/" + user.getId())
-                        .with(user("testuser").roles("ADMIN")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value(user.getEmail()));
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/users/" + user.getId())
+                        .with(SecurityMockMvcRequestPostProcessors.user("testuser").roles("ADMIN")))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(user.getEmail()));
     }
 
     @Test
@@ -108,9 +118,9 @@ class UserControllerTest {
         UUID id = UUID.randomUUID();
         Mockito.when(userService.getUserById(id)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/users/" + id)
-                        .with(user("testuser").roles("ADMIN")))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/users/" + id)
+                        .with(SecurityMockMvcRequestPostProcessors.user("testuser").roles("ADMIN")))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     @Test
@@ -119,19 +129,19 @@ class UserControllerTest {
 
         Mockito.when(userService.getAllUsers()).thenReturn(users);
 
-        mockMvc.perform(get("/api/users")
-                        .with(user("testuser").roles("ADMIN")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1));
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/users")
+                        .with(SecurityMockMvcRequestPostProcessors.user("testuser").roles("ADMIN")))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1));
     }
 
     @Test
     void testDeleteUser() throws Exception {
         UUID id = UUID.randomUUID();
 
-        mockMvc.perform(delete("/api/users/" + id)
-                        .with(csrf())
-                        .with(user("testuser").roles("ADMIN")))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/users/" + id)
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .with(SecurityMockMvcRequestPostProcessors.user("testuser").roles("ADMIN")))
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 }

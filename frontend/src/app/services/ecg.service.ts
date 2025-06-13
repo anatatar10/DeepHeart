@@ -11,6 +11,8 @@ import {Observable, map, BehaviorSubject, of, throwError} from 'rxjs';
 import { environment } from '../../environments/environment';
 import {ECGResult} from '../models/ecgresult';
 import {catchError, tap} from 'rxjs/operators';
+import { EcgRecordDTO } from '../models/ecg-record.dto';
+import {ECGHistoryResult} from '../models/ecg-history-result';
 
 export interface ECGUploadResponse {
   id: string;
@@ -98,13 +100,12 @@ export class ECGService {
   }
 
   // Fixed: Corrected the API endpoint URL
-  getPatientECGRecords(patientId: string): Observable<ECGResult[]> {
+  getPatientECGRecords(patientId: string): Observable<ECGHistoryResult[]> {
     console.log(`Fetching ECG records for patient: ${patientId}`);
 
-    // Fixed: Remove the duplicate '/ecg' in the URL since this.apiUrl already includes '/ecg'
     const url = `${this.apiUrl}/patient/${patientId}/records`;
 
-    return this.http.get<ECGResult[]>(url).pipe(
+    return this.http.get<ECGHistoryResult[]>(url).pipe(
       tap(results => {
         console.log(`Found ${results.length} ECG records for patient ${patientId}`);
       }),
@@ -209,7 +210,6 @@ export class ECGService {
     );
   }
 
-  // Add method to update ECG record
   updateECGRecord(ecgId: string, updates: Partial<ECGResult>): Observable<ECGResult> {
     return this.http.put<ECGResult>(`${this.apiUrl}/${ecgId}`, updates).pipe(
       tap((result) => {
@@ -221,4 +221,5 @@ export class ECGService {
       })
     );
   }
+
 }

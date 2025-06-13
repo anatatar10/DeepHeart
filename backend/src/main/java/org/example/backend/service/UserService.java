@@ -61,4 +61,30 @@ public class UserService {
 
         return createUser(dto);
     }
+
+    public User updateUser(UUID id, UserRequestDTO userDTO) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isEmpty()) {
+            throw new NoSuchElementException("User not found");
+        }
+
+        User user = optionalUser.get();
+
+        if (userDTO.getName() != null) user.setName(userDTO.getName());
+        if (userDTO.getUsername() != null) user.setUsername(userDTO.getUsername());
+        if (userDTO.getEmail() != null) user.setEmail(userDTO.getEmail());
+        if (userDTO.getPhone() != null) user.setPhone(userDTO.getPhone());
+        if (userDTO.getGender() != null) user.setGender(userDTO.getGender());
+        if (userDTO.getBirthdate() != null) user.setBirthdate(userDTO.getBirthdate());
+        if (userDTO.getSmokingStatus() != null) user.setSmokingStatus(userDTO.getSmokingStatus());
+        if (userDTO.getBloodPressure() != null) user.setBloodPressure(userDTO.getBloodPressure());
+        if (userDTO.getMedicalHistory() != null) user.setMedicalHistory(userDTO.getMedicalHistory());
+
+        // Role mapping (string to enum)
+        if (userDTO.getRole() != null) {
+            user.setRole(Role.valueOf(userDTO.getRole().toUpperCase()));
+        }
+
+        return userRepository.save(user);
+    }
 }

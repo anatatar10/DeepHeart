@@ -23,8 +23,30 @@ public class TestDataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Only add missing doctors - don't touch existing data
+        addAdmin();
         addMissingDoctors();
+
+    }
+
+    private void addAdmin() {
+        String adminEmail = "admin@admin.com";
+        if (!userRepository.existsByEmail(adminEmail)) {
+            User admin = new User();
+            admin.setUsername("admin");
+            admin.setEmail(adminEmail);
+            admin.setPassword(passwordEncoder.encode("admin123"));
+            admin.setRole(Role.ADMIN);
+            admin.setName("System Administrator");
+            admin.setPhone("+1-555-0000");
+            admin.setBirthdate(LocalDate.of(1990, 1, 1));
+            admin.setGender("Male");
+            admin.setRegistrationDate(LocalDate.now());
+
+            userRepository.save(admin);
+            System.out.println("✅ Admin user created: " + adminEmail);
+        } else {
+            System.out.println("⚠️ Admin user already exists: " + adminEmail);
+        }
     }
 
     private void addMissingDoctors() {

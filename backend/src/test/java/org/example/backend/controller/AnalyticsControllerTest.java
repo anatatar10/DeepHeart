@@ -1,6 +1,6 @@
 package org.example.backend.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.backend.controller.AnalyticsController;
 import org.example.backend.dto.AnalyticsDataDTO;
 import org.example.backend.dto.ClassificationDistributionDTO;
 import org.example.backend.dto.ModelPerformanceDTO;
@@ -10,14 +10,16 @@ import org.example.backend.repository.UserRepository;
 import org.example.backend.service.AnalyticsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -48,51 +50,51 @@ public class AnalyticsControllerTest {
         doctor = new User();
         doctor.setName("Dr. Test");
         doctor.setEmail("doctor@test.com");
-        when(userRepository.findByEmail(any())).thenReturn(java.util.Optional.of(doctor));
+        Mockito.when(userRepository.findByEmail(ArgumentMatchers.any())).thenReturn(java.util.Optional.of(doctor));
     }
 
     @Test
     @WithMockUser(username = "doctor@test.com", roles = {"DOCTOR"})
     public void testGetDashboardAnalytics() throws Exception {
         AnalyticsDataDTO mockData = getMockAnalyticsData();
-        when(analyticsService.getDashboardAnalytics(any(User.class))).thenReturn(mockData);
+        Mockito.when(analyticsService.getDashboardAnalytics(ArgumentMatchers.any(User.class))).thenReturn(mockData);
 
-        mockMvc.perform(get("/api/analytics/dashboard")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/analytics/dashboard")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
     @WithMockUser(username = "doctor@test.com", roles = {"DOCTOR"})
     public void testGetClassificationDistribution() throws Exception {
         ClassificationDistributionDTO mockDistribution = new ClassificationDistributionDTO(10, 5, 3, 2, 1);
-        when(analyticsService.getClassificationDistribution(any(User.class))).thenReturn(mockDistribution);
+        Mockito.when(analyticsService.getClassificationDistribution(ArgumentMatchers.any(User.class))).thenReturn(mockDistribution);
 
-        mockMvc.perform(get("/api/analytics/distribution")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/analytics/distribution")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
     @WithMockUser(username = "doctor@test.com", roles = {"DOCTOR"})
     public void testGetWeeklyTrends() throws Exception {
         List<WeeklyTrendsDTO> mockTrends = Collections.singletonList(new WeeklyTrendsDTO("2025-06-11", 5));
-        when(analyticsService.getWeeklyTrends(any(User.class))).thenReturn(mockTrends);
+        Mockito.when(analyticsService.getWeeklyTrends(ArgumentMatchers.any(User.class))).thenReturn(mockTrends);
 
-        mockMvc.perform(get("/api/analytics/trends")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/analytics/trends")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
     @WithMockUser(username = "doctor@test.com", roles = {"DOCTOR"})
     public void testGetModelPerformance() throws Exception {
         ModelPerformanceDTO mockPerformance = new ModelPerformanceDTO(95.5, 90.0, 92.0, 94.0, LocalDateTime.now());
-        when(analyticsService.calculateModelPerformance(any(User.class))).thenReturn(mockPerformance);
+        Mockito.when(analyticsService.calculateModelPerformance(ArgumentMatchers.any(User.class))).thenReturn(mockPerformance);
 
-        mockMvc.perform(get("/api/analytics/performance")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/analytics/performance")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     // Mock data builder

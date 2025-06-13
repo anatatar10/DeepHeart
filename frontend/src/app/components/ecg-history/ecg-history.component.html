@@ -1,0 +1,85 @@
+<div class="history-container">
+  <h2>My ECG History</h2>
+
+  <div *ngIf="loading" class="loading">Loading...</div>
+
+  <!-- Header -->
+  <div class="table-header">
+    <div class="col file-name-header">File Name</div>
+    <div class="col">Classification</div>
+    <div class="col">Confidence</div>
+    <div class="col">Upload Date</div>
+    <div class="col actions-header">Actions</div>
+  </div>
+
+  <!-- Records -->
+  <ng-container *ngFor="let record of filteredRecords">
+    <div class="record-card">
+      <div class="col file-name-col">
+        <button class="expand-btn" (click)="toggleExpand(record.id)">
+          {{ expandedRecord === record.id ? '▼' : '▶' }}
+        </button>
+        <div>
+          <div class="file-name">{{ record.fileName }}</div>
+          <div class="record-id">ID: {{ record.id.substring(0, 8) }}</div>
+        </div>
+      </div>
+
+      <div class="col">
+        <span class="status-badge" [ngClass]="getClassificationClass(record.classification)">
+          {{ getClassificationLabel(record.classification) }}
+        </span>
+      </div>
+
+      <div class="col">{{ record.confidence.toFixed(1) }}%</div>
+
+      <div class="col">{{ record.timestamp | date:'short' }}</div>
+
+      <div class="col actions">
+        <button class="action-btn download" (click)="downloadReport(record)">Download Report</button>
+        <button class="action-btn delete" (click)="deleteRecord(record)">Delete Record</button>
+      </div>
+    </div>
+
+    <!-- Expanded Details -->
+    <div *ngIf="expandedRecord === record.id" class="details-card">
+      <div class="details-grid">
+
+        <!-- Record Information -->
+        <div class="details-section">
+          <h3>📋 Record Information</h3>
+          <p><strong>Record ID:</strong> {{ record.id }}</p>
+          <p><strong>Patient ID:</strong> {{ record.patientId }}</p>
+          <p><strong>File Name:</strong> {{ record.fileName }}</p>
+          <p><strong>Analysis Date:</strong> {{ record.timestamp | date:'full' }}</p>
+        </div>
+
+        <!-- Classification Probabilities -->
+        <div class="details-section">
+          <h3>🔬 Classification Analysis</h3>
+          <p><strong>Primary:</strong> {{ getClassificationLabel(record.classification) }} ({{ record.confidence.toFixed(2) }}%)</p>
+          <div *ngFor="let prob of record.probabilities | keyvalue" class="prob-row">
+            <div class="prob-label">{{ getClassificationLabel(prob.key) }}</div>
+            <div class="prob-bar">
+              <div class="prob-fill" [style.width.%]="prob.value" [style.background]="getProbabilityColor(prob.key)"></div>
+            </div>
+            <div class="prob-value">{{ prob.value.toFixed(1) }}%</div>
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="details-section">
+          <h3>🏥 Clinical Info</h3>
+          <p class="description">{{ record.description || 'No additional info.' }}</p>
+          <div *ngIf="getRecommendations(record.classification)">
+            <p><strong>Recommendations:</strong></p>
+            <ul>
+              <li *ngFor="let rec of getRecommendations(record.classification)">{{ rec }}</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </ng-container>
+</div>

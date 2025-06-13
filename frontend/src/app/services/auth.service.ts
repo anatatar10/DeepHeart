@@ -104,16 +104,16 @@ export class AuthService {
       confirmPassword: newPassword
     };
 
-    console.log('🔧 Reset password request details:');
-    console.log('📍 URL:', resetPasswordUrl);
-    console.log('📦 Payload:', { ...payload, newPassword: '***', confirmPassword: '***' });
+    console.log('Reset password request details:');
+    console.log('URL:', resetPasswordUrl);
+    console.log('Payload:', { ...payload, newPassword: '***', confirmPassword: '***' });
 
     return this.http.post(resetPasswordUrl, payload, { headers }).pipe(
       tap((response: any) => {
-        console.log('✅ Reset password response:', response);
+        console.log('Reset password response:', response);
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('❌ Reset password error:', error);
+        console.error('Reset password error:', error);
 
         let errorMessage = 'Failed to reset password. Please try again.';
 
@@ -141,16 +141,16 @@ export class AuthService {
 
     const payload = { token };
 
-    console.log('🔧 Verify token request details:');
-    console.log('📍 URL:', verifyTokenUrl);
-    console.log('📦 Payload:', payload);
+    console.log('Verify token request details:');
+    console.log('URL:', verifyTokenUrl);
+    console.log('Payload:', payload);
 
     return this.http.post(verifyTokenUrl, payload, { headers }).pipe(
       tap((response: any) => {
         console.log('✅ Verify token response:', response);
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('❌ Verify token error:', error);
+        console.error('Verify token error:', error);
 
         let errorMessage = 'Invalid or expired reset token.';
 
@@ -202,5 +202,113 @@ export class AuthService {
     const hasUser = !!this.getUser();
     console.log('Authentication check - hasToken:', hasToken, 'hasUser:', hasUser);
     return hasToken && hasUser;
+  }
+
+  isLoggedIn(): boolean {
+    return this.isAuthenticated();
+  }
+
+  /**
+   * Get current user (alias for getUser)
+   * Consistent naming across the application
+   */
+  getCurrentUser(): any {
+    return this.getUser();
+  }
+
+  /**
+   * Check if current user has admin role
+   */
+  isAdmin(): boolean {
+    const user = this.getUser();
+    return user && user.role === 'ADMIN';
+  }
+
+  /**
+   * Check if current user has doctor role
+   */
+  isDoctor(): boolean {
+    const user = this.getUser();
+    return user && user.role === 'DOCTOR';
+  }
+
+
+
+
+  hasRole(role: string): boolean {
+    const userRole = this.getUserRole();
+    return userRole === role;
+  }
+
+
+  hasAnyRole(roles: string[]): boolean {
+    const userRole = this.getUserRole();
+    return userRole ? roles.includes(userRole) : false;
+  }
+
+
+  isPatient(): boolean {
+    const user = this.getUser();
+    return user && user.role === 'PATIENT';
+  }
+
+
+  getUserRole(): string | null {
+    const user = this.getUser();
+    return user ? user.role : null;
+  }
+
+  /**
+   * Navigate to appropriate dashboard after login
+   */
+  navigateAfterLogin(router: any): void {
+    const user = this.getUser();
+    console.log('🚀 AuthService: Navigate after login - User:', user);
+
+    if (!user) {
+      console.log('❌ No user found, redirecting to auth');
+      router.navigate(['/auth']);
+      return;
+    }
+
+    const role = user.role?.toUpperCase();
+    console.log('🎭 User role for navigation:', role);
+
+    switch (role) {
+      case 'ADMIN':
+        console.log('🔴 AuthService: Navigating to admin dashboard');
+        router.navigate(['/dashboard-admin']);
+        break;
+      case 'DOCTOR':
+        console.log('🟢 AuthService: Navigating to doctor dashboard');
+        router.navigate(['/dashboard-doctor']);
+        break;
+      case 'PATIENT':
+        console.log('🔵 AuthService: Navigating to patient dashboard');
+        router.navigate(['/dashboard-patient']);
+        break;
+      default:
+        console.log('⚠️ AuthService: Unknown role, defaulting to patient dashboard');
+        router.navigate(['/dashboard-patient']);
+    }
+  }
+
+  /**
+   * Debug current user status
+   */
+  debugUserStatus(): void {
+    const token = this.getToken();
+    const user = this.getUser();
+
+    console.log('🔍 === AUTH DEBUG STATUS ===');
+    console.log('🔑 Token exists:', !!token);
+    console.log('👤 User exists:', !!user);
+    console.log('📋 User data:', user);
+    console.log('🎭 User role:', user?.role);
+    console.log('✅ Is authenticated:', this.isAuthenticated());
+    console.log('🔴 Is admin:', this.isAdmin());
+    console.log('🟢 Is doctor:', this.isDoctor());
+    console.log('🔵 Is patient:', this.isPatient());
+    console.log('========================');
   }
 }

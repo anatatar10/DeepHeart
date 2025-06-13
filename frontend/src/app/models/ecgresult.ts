@@ -19,7 +19,6 @@ export interface ECGResult {
     resnet_primary: string;
     agreement_note: string;
   };
-  // New properties for patient record functionality
   patientId?: string;
   savedToRecord?: boolean;
 }

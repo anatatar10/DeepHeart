@@ -1,0 +1,194 @@
+<div class="admin-dashboard">
+
+  <!-- Stats Overview -->
+  <div class="stats-grid" *ngIf="userStats">
+    <div class="stat-card stat-primary">
+      <div class="stat-icon"><i class="fas fa-users"></i></div>
+      <div class="stat-content">
+        <h3 class="stat-number">{{ userStats.total }}</h3>
+        <p class="stat-label">Total Users</p>
+      </div>
+    </div>
+    <div class="stat-card stat-success">
+      <div class="stat-icon"><i class="fas fa-user-md"></i></div>
+      <div class="stat-content">
+        <h3 class="stat-number">{{ userStats.doctors }}</h3>
+        <p class="stat-label">Doctors</p>
+      </div>
+    </div>
+    <div class="stat-card stat-info">
+      <div class="stat-icon"><i class="fas fa-hospital-user"></i></div>
+      <div class="stat-content">
+        <h3 class="stat-number">{{ userStats.patients }}</h3>
+        <p class="stat-label">Patients</p>
+      </div>
+    </div>
+    <div class="stat-card stat-warning">
+      <div class="stat-icon"><i class="fas fa-user-shield"></i></div>
+      <div class="stat-content">
+        <h3 class="stat-number">{{ userStats.admins }}</h3>
+        <p class="stat-label">Administrators</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-container">
+    <div class="tab-header">
+      <button *ngFor="let tab of tabs" (click)="activeTab = tab.id" [class.active]="activeTab === tab.id" class="tab-button">
+        <i [class]="tab.icon"></i> {{ tab.label }}
+      </button>
+    </div>
+
+    <!-- Overview -->
+    <div *ngIf="activeTab === 'overview'" class="tab-content">
+      <h3>Recent Users</h3>
+      <ul>
+        <li *ngFor="let user of recentUsers">
+          <strong>{{ user.name }}</strong> ({{ user.email }}) - <em>{{ user.role }}</em><br>
+          <small>Registered: {{ user.registrationDate | date: 'mediumDate' }}</small>
+        </li>
+      </ul>
+    </div>
+
+    <!-- User Management -->
+    <div *ngIf="activeTab === 'users'" class="tab-content">
+      <h3>User Management</h3>
+      <input type="text" [(ngModel)]="searchTerm" (input)="filterUsers()" placeholder="Search users..." />
+      <select [(ngModel)]="selectedRole" (change)="filterUsers()">
+        <option value="">All Roles</option>
+        <option value="ADMIN">Admin</option>
+        <option value="DOCTOR">Doctor</option>
+        <option value="PATIENT">Patient</option>
+      </select>
+
+      <table>
+        <thead>
+        <tr><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let user of filteredUsers" (click)="viewUserDetails(user)" class="user-row">
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.role }}</td>
+          <td>
+            <button (click)="editUser(user); $event.stopPropagation()">Edit</button>
+            <button (click)="deleteUser(user); $event.stopPropagation()">Delete</button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Reports -->
+    <div *ngIf="activeTab === 'reports'" class="tab-content">
+      <h2>System Reports</h2>
+      <p>Reports functionality coming soon...</p>
+    </div>
+
+    <!-- Settings -->
+    <div *ngIf="activeTab === 'settings'" class="tab-content">
+      <h2>System Settings</h2>
+      <p>Settings functionality coming soon...</p>
+    </div>
+  </div>
+</div>
+
+<!-- User Details Modal -->
+<div class="modal-overlay" *ngIf="selectedUser">
+  <div class="modal-content">
+    <button class="close-btn" (click)="closeUserDetails()">X</button>
+    <h2>{{ selectedUser.name }}</h2>
+    <p><strong>Username:</strong> {{ selectedUser.username }}</p>
+    <p><strong>Email:</strong> {{ selectedUser.email }}</p>
+    <p><strong>Phone:</strong> {{ selectedUser.phone || 'N/A' }}</p>
+    <p><strong>Gender:</strong> {{ selectedUser.gender || 'N/A' }}</p>
+    <p><strong>Birthdate:</strong> {{ selectedUser.birthdate || 'N/A' }}</p>
+    <p><strong>Role:</strong> {{ selectedUser.role }}</p>
+    <p><strong>Registered:</strong> {{ selectedUser.registrationDate | date:'medium' }}</p>
+
+    <div *ngIf="selectedUser?.medicalHistory as history">
+      <div *ngIf="history.length > 0">
+        <p><strong>Medical History:</strong> {{ history.join(', ') }}</p>
+      </div>
+    </div>
+
+    <div *ngIf="selectedUser?.doctor">
+      <p><strong>Assigned Doctor:</strong> {{ selectedUser.doctor?.name }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Edit User Modal -->
+<!-- Edit User Modal -->
+<div class="modal-overlay" *ngIf="showUserModal">
+  <div class="modal-content">
+    <button class="close-btn" (click)="closeUserModal()">X</button>
+    <h2>Edit User</h2>
+
+    <form [formGroup]="userForm" (ngSubmit)="submitUser()" class="edit-user-form">
+
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h3>Basic Information</h3>
+
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input id="name" formControlName="name" type="text" placeholder="Full Name" />
+        </div>
+
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input id="username" formControlName="username" type="text" placeholder="Username" />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input id="email" formControlName="email" type="email" placeholder="Email Address" />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input id="phone" formControlName="phone" type="text" placeholder="Phone Number" />
+        </div>
+      </div>
+
+      <!-- Other Information -->
+      <div class="form-section">
+        <h3>Additional Information</h3>
+
+        <div class="form-group">
+          <label for="gender">Gender</label>
+          <select id="gender" formControlName="gender">
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+            <option value="prefer_not_to_say">Prefer not to say</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="birthdate">Birthdate</label>
+          <input id="birthdate" formControlName="birthdate" type="date" />
+        </div>
+
+        <div class="form-group">
+          <label for="role">Role</label>
+          <select id="role" formControlName="role">
+            <option value="ADMIN">Admin</option>
+            <option value="DOCTOR">Doctor</option>
+            <option value="PATIENT">Patient</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="modal-footer">
+        <button type="submit" class="btn-primary" [disabled]="userForm.invalid">Save</button>
+        <button type="button" class="btn-secondary" (click)="closeUserModal()">Cancel</button>
+      </div>
+
+    </form>
+  </div>
+</div>

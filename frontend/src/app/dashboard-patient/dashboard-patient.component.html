@@ -1,1 +1,89 @@
-<p>dashboard-patient works!</p>
+<div class="main">
+  <section class="section active">
+    <div class="container">
+
+      <!-- Header -->
+      <div class="section-header">
+        <h2>Patient Dashboard</h2>
+        <p class="section-subtitle" *ngIf="currentUser">
+          Welcome back, <span class="welcome-user">{{ currentUser.name }}</span>
+        </p>
+      </div>
+
+      <!-- Patient Info Card -->
+      <div class="card doctor-info-card" *ngIf="currentUser">
+        <div class="card__body">
+          <div class="doctor-header">
+            <div class="doctor-avatar-section">
+              <div class="user-avatar activity-indicator">
+                {{ getUserInitials(currentUser.name) }}
+              </div>
+              <div class="doctor-basic-info">
+                <h3 class="doctor-name">{{ currentUser.name }}</h3>
+              </div>
+            </div>
+          </div>
+
+          <div class="user-details-grid">
+
+            <div class="detail-item">
+              <span class="detail-label">Full Name</span>
+              <span class="detail-value">{{ currentUser.name }}</span>
+            </div>
+
+            <div class="detail-item" *ngIf="currentUser.email">
+              <span class="detail-label">Email Address</span>
+              <span class="detail-value">{{ currentUser.email }}</span>
+            </div>
+
+            <div class="detail-item" *ngIf="currentUser.phone">
+              <span class="detail-label">Phone Number</span>
+              <span class="detail-value">{{ currentUser.phone }}</span>
+            </div>
+
+            <div class="detail-item" *ngIf="currentUser.gender">
+              <span class="detail-label">Gender</span>
+              <span class="detail-value">{{ formatGender(currentUser.gender) }}</span>
+            </div>
+
+            <div class="detail-item" *ngIf="currentUser.birthdate">
+              <span class="detail-label">Date of Birth</span>
+              <span class="detail-value">{{ formatDate(currentUser.birthdate) }}</span>
+            </div>
+
+            <div class="detail-item" *ngIf="currentUser.registrationDate">
+              <span class="detail-label">Member Since</span>
+              <span class="detail-value">{{ formatDate(currentUser.registrationDate, 'month') }}</span>
+            </div>
+
+            <div class="detail-item" *ngIf="currentUser.doctorName">
+              <span class="detail-label">Assigned Doctor</span>
+              <span class="detail-value">{{ currentUser.doctorName }}</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid" *ngIf="stats">
+        <div class="stat-card">
+          <div class="stat-icon">📊</div>
+          <div class="stat-content">
+            <h3>{{ stats.totalUploads || 0 }}</h3>
+            <p>Total ECG Uploads</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-content">
+            <h3>{{ stats.lastUpload ? (stats.lastUpload | date:'short') : 'No Uploads' }}</h3>
+            <p>Last Upload</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>

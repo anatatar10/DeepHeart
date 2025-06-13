@@ -1,12 +1,16 @@
 package org.example.backend.service;
 
+import org.assertj.core.api.Assertions;
 import org.example.backend.dto.DashboardStatsDTO;
 import org.example.backend.model.Role;
 import org.example.backend.model.User;
 import org.example.backend.repository.EcgRecordRepository;
 import org.example.backend.repository.UserRepository;
+import org.example.backend.service.DashboardService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
@@ -23,8 +27,8 @@ public class DashboardServiceTest {
 
     @BeforeEach
     public void setUp() {
-        ecgRecordRepository = mock(EcgRecordRepository.class);
-        userRepository = mock(UserRepository.class);
+        ecgRecordRepository = Mockito.mock(EcgRecordRepository.class);
+        userRepository = Mockito.mock(UserRepository.class);
         dashboardService = new DashboardService(ecgRecordRepository, userRepository);
     }
 
@@ -37,17 +41,17 @@ public class DashboardServiceTest {
         doctor.setEmail("doctor@test.com");
         ReflectionTestUtils.setField(doctor, "id", doctorId);  // 🔧 inject ID
 
-        when(userRepository.findById(doctorId)).thenReturn(Optional.of(doctor));
-        when(ecgRecordRepository.countByDoctor(doctor)).thenReturn(20L);
-        when(ecgRecordRepository.countByDoctorAndDateAddedBetween(eq(doctor), any(), any())).thenReturn(5L);
-        when(userRepository.countByDoctor(doctor)).thenReturn(10L);
+        Mockito.when(userRepository.findById(doctorId)).thenReturn(Optional.of(doctor));
+        Mockito.when(ecgRecordRepository.countByDoctor(doctor)).thenReturn(20L);
+        Mockito.when(ecgRecordRepository.countByDoctorAndDateAddedBetween(ArgumentMatchers.eq(doctor), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(5L);
+        Mockito.when(userRepository.countByDoctor(doctor)).thenReturn(10L);
 
         DashboardStatsDTO stats = dashboardService.getDashboardStatsForDoctorById(doctorId);
 
-        assertThat(stats).isNotNull();
-        assertThat(stats.getTotalUploads()).isEqualTo(20);
-        assertThat(stats.getTodaysUploads()).isEqualTo(5);
-        assertThat(stats.getTotalPatients()).isEqualTo(10);
+        Assertions.assertThat(stats).isNotNull();
+        Assertions.assertThat(stats.getTotalUploads()).isEqualTo(20);
+        Assertions.assertThat(stats.getTodaysUploads()).isEqualTo(5);
+        Assertions.assertThat(stats.getTotalPatients()).isEqualTo(10);
     }
 
     @Test
@@ -60,16 +64,16 @@ public class DashboardServiceTest {
         doctor.setEmail(doctorEmail);
         ReflectionTestUtils.setField(doctor, "id", doctorId);  // 🔧 inject ID
 
-        when(userRepository.findByEmail(doctorEmail)).thenReturn(Optional.of(doctor));
-        when(ecgRecordRepository.countByDoctor(doctor)).thenReturn(15L);
-        when(ecgRecordRepository.countByDoctorAndDateAddedBetween(eq(doctor), any(), any())).thenReturn(3L);
-        when(userRepository.countByDoctor(doctor)).thenReturn(7L);
+        Mockito.when(userRepository.findByEmail(doctorEmail)).thenReturn(Optional.of(doctor));
+        Mockito.when(ecgRecordRepository.countByDoctor(doctor)).thenReturn(15L);
+        Mockito.when(ecgRecordRepository.countByDoctorAndDateAddedBetween(ArgumentMatchers.eq(doctor), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(3L);
+        Mockito.when(userRepository.countByDoctor(doctor)).thenReturn(7L);
 
         DashboardStatsDTO stats = dashboardService.getDashboardStatsForDoctorByEmail(doctorEmail);
 
-        assertThat(stats).isNotNull();
-        assertThat(stats.getTotalUploads()).isEqualTo(15);
-        assertThat(stats.getTodaysUploads()).isEqualTo(3);
-        assertThat(stats.getTotalPatients()).isEqualTo(7);
+        Assertions.assertThat(stats).isNotNull();
+        Assertions.assertThat(stats.getTotalUploads()).isEqualTo(15);
+        Assertions.assertThat(stats.getTodaysUploads()).isEqualTo(3);
+        Assertions.assertThat(stats.getTotalPatients()).isEqualTo(7);
     }
 }

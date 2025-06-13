@@ -1,11 +1,14 @@
 package org.example.backend.service;
 
+import org.assertj.core.api.Assertions;
 import org.example.backend.dto.PatientDTO;
 import org.example.backend.model.Role;
 import org.example.backend.model.User;
 import org.example.backend.repository.UserRepository;
+import org.example.backend.service.PatientService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -22,7 +25,7 @@ public class PatientServiceTest {
 
     @BeforeEach
     public void setup() {
-        userRepository = mock(UserRepository.class);
+        userRepository = Mockito.mock(UserRepository.class);
         patientService = new PatientService();
         ReflectionTestUtils.setField(patientService, "userRepository", userRepository);
     }
@@ -32,12 +35,12 @@ public class PatientServiceTest {
         User patient = createMockPatient();
         List<User> patients = List.of(patient);
 
-        when(userRepository.findByRole(Role.PATIENT)).thenReturn(patients);
+        Mockito.when(userRepository.findByRole(Role.PATIENT)).thenReturn(patients);
 
         List<PatientDTO> result = patientService.getAllPatients();
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).isEqualTo("Patient Name");
+        Assertions.assertThat(result).hasSize(1);
+        Assertions.assertThat(result.get(0).getName()).isEqualTo("Patient Name");
     }
 
     @Test
@@ -45,12 +48,12 @@ public class PatientServiceTest {
         UUID doctorId = UUID.randomUUID();
         User patient = createMockPatient();
 
-        when(userRepository.findPatientsByDoctorId(doctorId)).thenReturn(List.of(patient));
+        Mockito.when(userRepository.findPatientsByDoctorId(doctorId)).thenReturn(List.of(patient));
 
         List<PatientDTO> result = patientService.getPatientsByDoctor(doctorId);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getEmail()).isEqualTo("patient@example.com");
+        Assertions.assertThat(result).hasSize(1);
+        Assertions.assertThat(result.get(0).getEmail()).isEqualTo("patient@example.com");
     }
 
     @Test
@@ -59,20 +62,20 @@ public class PatientServiceTest {
         UUID id = UUID.randomUUID();
         ReflectionTestUtils.setField(patient, "id", id);
 
-        when(userRepository.findById(id)).thenReturn(Optional.of(patient));
+        Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(patient));
 
         Optional<PatientDTO> result = patientService.getPatientById(id);
-        assertThat(result).isPresent();
-        assertThat(result.get().getGender()).isEqualTo("Female");
+        Assertions.assertThat(result).isPresent();
+        Assertions.assertThat(result.get().getGender()).isEqualTo("Female");
     }
 
     @Test
     public void testGetPatientById_NotFound() {
         UUID id = UUID.randomUUID();
-        when(userRepository.findById(id)).thenReturn(Optional.empty());
+        Mockito.when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         Optional<PatientDTO> result = patientService.getPatientById(id);
-        assertThat(result).isEmpty();
+        Assertions.assertThat(result).isEmpty();
     }
 
     @Test
@@ -80,12 +83,12 @@ public class PatientServiceTest {
         PatientDTO dto = buildPatientDTO();
         User savedPatient = createMockPatient();
 
-        when(userRepository.save(any(User.class))).thenReturn(savedPatient);
+        Mockito.when(userRepository.save(ArgumentMatchers.any(User.class))).thenReturn(savedPatient);
 
         PatientDTO result = patientService.createPatient(dto);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo(dto.getName());
+        Assertions.assertThat(result).isNotNull();
+        Assertions.assertThat(result.getName()).isEqualTo(dto.getName());
     }
 
     @Test
@@ -97,13 +100,13 @@ public class PatientServiceTest {
         PatientDTO dto = buildPatientDTO();
         dto.setName("Updated Name");
 
-        when(userRepository.findById(id)).thenReturn(Optional.of(existing));
-        when(userRepository.save(any(User.class))).thenReturn(existing);
+        Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(existing));
+        Mockito.when(userRepository.save(ArgumentMatchers.any(User.class))).thenReturn(existing);
 
         PatientDTO result = patientService.updatePatient(id, dto);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo("Updated Name");
+        Assertions.assertThat(result).isNotNull();
+        Assertions.assertThat(result.getName()).isEqualTo("Updated Name");
     }
 
     @Test
@@ -112,33 +115,33 @@ public class PatientServiceTest {
         User existing = createMockPatient();
         ReflectionTestUtils.setField(existing, "id", id);
 
-        when(userRepository.findById(id)).thenReturn(Optional.of(existing));
+        Mockito.when(userRepository.findById(id)).thenReturn(Optional.of(existing));
 
         boolean deleted = patientService.deletePatient(id);
 
-        assertThat(deleted).isTrue();
-        verify(userRepository, times(1)).deleteById(id);
+        Assertions.assertThat(deleted).isTrue();
+        Mockito.verify(userRepository, Mockito.times(1)).deleteById(id);
     }
 
     @Test
     public void testDeletePatient_NotFound() {
         UUID id = UUID.randomUUID();
-        when(userRepository.findById(id)).thenReturn(Optional.empty());
+        Mockito.when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         boolean deleted = patientService.deletePatient(id);
 
-        assertThat(deleted).isFalse();
+        Assertions.assertThat(deleted).isFalse();
     }
 
     @Test
     public void testSearchPatients() {
         User patient = createMockPatient();
-        when(userRepository.findPatientsByNameContaining("Patient")).thenReturn(List.of(patient));
+        Mockito.when(userRepository.findPatientsByNameContaining("Patient")).thenReturn(List.of(patient));
 
         List<PatientDTO> result = patientService.searchPatients("Patient");
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).isEqualTo("Patient Name");
+        Assertions.assertThat(result).hasSize(1);
+        Assertions.assertThat(result.get(0).getName()).isEqualTo("Patient Name");
     }
 
     private User createMockPatient() {

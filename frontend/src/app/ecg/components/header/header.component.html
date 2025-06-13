@@ -4,23 +4,33 @@
       <div class="logo">
         <span>Deep🫀Heart</span>
       </div>
-      <nav class="nav" id="mainNav">
+
+      <!-- Doctor Navigation -->
+      <nav class="nav" id="mainNav" *ngIf="currentUser?.role === 'DOCTOR'">
         <a routerLink="/dashboard-doctor" routerLinkActive="active" class="nav-link">Dashboard</a>
         <a routerLink="/upload" routerLinkActive="active" class="nav-link">ECG Upload</a>
         <a routerLink="/patients" routerLinkActive="active" class="nav-link">Patients</a>
         <a routerLink="/analytics" routerLinkActive="active" class="nav-link">Analytics</a>
-        <a routerLink="/admin" routerLinkActive="active" class="nav-link admin-only"
-           *ngIf="currentUser?.role === 'ADMIN'">Admin</a>
       </nav>
+
+      <!-- Patient Navigation -->
+      <nav class="nav" id="mainNav" *ngIf="currentUser?.role === 'PATIENT'">
+        <a routerLink="/dashboard-patient" routerLinkActive="active" class="nav-link">Dashboard</a>
+        <a routerLink="/upload" routerLinkActive="active" class="nav-link">ECG Upload</a>
+        <a routerLink="/ecg-history" routerLinkActive="active" class="nav-link">ECG History</a>
+      </nav>
+
+      <!-- Admin Navigation -->
+      <nav class="nav" id="mainNav" *ngIf="currentUser?.role === 'ADMIN'">
+        <a routerLink="/dashboard-admin" routerLinkActive="active" class="nav-link">Admin Dashboard</a>
+      </nav>
+
     </div>
 
     <!-- User Info Section -->
     <div class="user-info" *ngIf="currentUser">
       <span id="currentUser">{{ currentUser.name }}</span>
-      <span
-        class="status"
-        [ngClass]="getRoleStatusClass(currentUser.role)"
-        id="userRole">
+      <span class="status" [ngClass]="getRoleStatusClass(currentUser.role)" id="userRole">
         {{ formatRole(currentUser.role) }}
       </span>
       <button class="btn btn--outline btn--sm" (click)="logout()">

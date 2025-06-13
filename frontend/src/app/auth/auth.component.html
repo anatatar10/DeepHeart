@@ -179,6 +179,7 @@
                 type="date"
                 formControlName="birthdate"
                 [class.error]="isFieldInvalid(signupForm, 'birthdate')"
+                [max]="today"
                 required
               />
               <div class="error-message" *ngIf="isFieldInvalid(signupForm, 'birthdate')">

@@ -1,7 +1,9 @@
 package org.example.backend.service;
 
+import org.assertj.core.api.Assertions;
 import org.example.backend.model.Prediction;
 import org.example.backend.repository.PredictionRepository;
+import org.example.backend.service.PredictionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,7 +21,7 @@ public class PredictionServiceTest {
 
     @BeforeEach
     public void setup() {
-        predictionRepository = mock(PredictionRepository.class);
+        predictionRepository = Mockito.mock(PredictionRepository.class);
         predictionService = new PredictionService();
         ReflectionTestUtils.setField(predictionService, "predictionRepository", predictionRepository);
     }
@@ -29,11 +31,11 @@ public class PredictionServiceTest {
         Prediction prediction = new Prediction();
         ReflectionTestUtils.setField(prediction, "id", UUID.randomUUID());
 
-        when(predictionRepository.save(prediction)).thenReturn(prediction);
+        Mockito.when(predictionRepository.save(prediction)).thenReturn(prediction);
 
         Prediction saved = predictionService.save(prediction);
 
-        assertThat(saved).isEqualTo(prediction);
+        Assertions.assertThat(saved).isEqualTo(prediction);
     }
 
     @Test
@@ -42,11 +44,11 @@ public class PredictionServiceTest {
         List<Prediction> predictions = new ArrayList<>();
         predictions.add(new Prediction());
 
-        when(predictionRepository.findByEcgRecordId(ecgRecordId)).thenReturn(predictions);
+        Mockito.when(predictionRepository.findByEcgRecordId(ecgRecordId)).thenReturn(predictions);
 
         List<Prediction> result = predictionService.getAllByEcgRecordId(ecgRecordId);
 
-        assertThat(result).hasSize(1);
+        Assertions.assertThat(result).hasSize(1);
     }
 
     @Test
@@ -55,11 +57,11 @@ public class PredictionServiceTest {
         Prediction prediction = new Prediction();
         ReflectionTestUtils.setField(prediction, "id", id);
 
-        when(predictionRepository.findById(id)).thenReturn(Optional.of(prediction));
+        Mockito.when(predictionRepository.findById(id)).thenReturn(Optional.of(prediction));
 
         Prediction result = predictionService.getById(id);
 
-        assertThat(result).isEqualTo(prediction);
+        Assertions.assertThat(result).isEqualTo(prediction);
     }
 
     @Test
@@ -68,6 +70,6 @@ public class PredictionServiceTest {
 
         predictionService.delete(id);
 
-        verify(predictionRepository, times(1)).deleteById(id);
+        Mockito.verify(predictionRepository, Mockito.times(1)).deleteById(id);
     }
 }

@@ -167,5 +167,13 @@ public class PatientService {
         return name.toLowerCase().replaceAll(" ", ".") + System.currentTimeMillis() % 1000;
     }
 
+    public PatientDTO getPatientByEmail(String email) {
+        Optional<User> patient = userRepository.findByEmail(email);
+        if (patient.isPresent() && patient.get().getRole() == Role.PATIENT) {
+            return convertToDTO(patient.get());
+        }
+        throw new RuntimeException("Patient not found for email: " + email);
+    }
+
 
 }

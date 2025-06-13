@@ -1,4 +1,3 @@
-// src/app/components/patient-records/patient-records.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -8,6 +7,9 @@ import { AuthService } from '../../services/auth.service';
 import { ECGService } from '../../services/ecg.service';
 import { Patient } from '../../models/patient';
 import { ECGResult } from '../../models/ecgresult';
+import {ECGHistoryResult} from '../../models/ecg-history-result';
+
+
 
 interface MedicalRecord {
   id?: number;
@@ -108,6 +110,25 @@ export class PatientRecordsComponent implements OnInit {
       height: 0
     }
   };
+
+  private mapHistoryToECGResults(historyResults: ECGHistoryResult[]): ECGResult[] {
+    return historyResults.map(result => ({
+      id: result.id,
+      fileName: result.fileName,
+      classification: result.classification,
+      confidence: result.confidence,
+      probabilities: result.probabilities,
+      timestamp: result.timestamp,
+      description: result.description,
+      model: "Unknown",  // you can replace this if you want with "DenseNet" or "Ensemble"
+      confidence_level: "N/A",
+      clinical_recommendation: "N/A",
+      secondary_findings: {},
+      model_info: {},
+      patientId: result.patientId,
+      savedToRecord: result.status === 'Saved to Patient Record'
+    }));
+  }
 
   // Add missing ECG form properties
   newECGRecord: any = {
@@ -265,31 +286,17 @@ export class PatientRecordsComponent implements OnInit {
     const patientId = this.patientStringId || this.patientId.toString();
     console.log('🔍 Loading ECG records for patient:', patientId);
 
-    // Load real ECG records from the ECG service
     this.ecgService.getPatientECGRecords(patientId).subscribe({
-      next: (ecgResults: ECGResult[]) => {
-        console.log('✅ ECG records loaded from service:', ecgResults);
-
-        if (ecgResults && ecgResults.length > 0) {
-          this.ecgRecords = this.mapECGResultsToRecords(ecgResults);
-        } else {
-          console.log('📝 No ECG records found for this patient');
-          this.ecgRecords = [];
-        }
-
+      next: (historyResults: ECGHistoryResult[]) => {
+        console.log('✅ ECG records received:', historyResults);
+        const ecgResults: ECGResult[] = this.mapHistoryToECGResults(historyResults);
+        this.ecgRecords = this.mapECGResultsToRecords(ecgResults);
         this.loadingECG = false;
       },
       error: (error) => {
-        console.error('❌ Error loading ECG records:', error);
-        this.ecgRecords = [];
-        this.loadingECG = false;
-
-        // Only show error notification for non-404 errors
-        if (error.status !== 404) {
-          this.showNotification('Unable to connect to ECG service. Please check if the server is running.', 'error');
-        } else {
-          console.log('📝 ECG records endpoint not found - this is normal if no ECG service is configured');
-        }
+        console.error('❌ ERROR while loading ECG history:', JSON.stringify(error, null, 2));
+        console.error('Full Error Object:', error);        this.loadingECG = false;
+        this.showNotification('Failed to load ECG history', 'error');
       }
     });
   }

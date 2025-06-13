@@ -52,6 +52,11 @@ export class DashboardService {
     );
   }
 
+  getAllUsers(): Observable<any[]> {
+    return this.http.get<any[]>('/api/users');
+  }
+
+
   /**
    * Get raw stats from backend (if needed)
    */

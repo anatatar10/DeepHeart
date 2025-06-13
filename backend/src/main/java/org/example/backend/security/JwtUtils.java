@@ -14,21 +14,26 @@ import java.util.Date;
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    // Simple, long secret key
+    // Same secret key (long enough for HS256)
     private static final String jwtSecret = "mySecretKeyForJWTTokenGenerationThatIsLongEnoughForHS256AlgorithmToWorkProperly123456789";
     private final SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     private final long jwtExpirationMs = 86400000; // 1 day
 
-    public String generateJwtToken(String username) {
-        logger.info("Generating JWT for user: {}", username);
+    // ✅ Modified: Generate token with full user info
+    public String generateJwtToken(String userId, String email, String role, String name) {
+        logger.info("Generating JWT for user: {}", email);
+
         try {
             String token = Jwts.builder()
-                    .setSubject(username)
+                    .setSubject(email)
+                    .claim("id", userId)
+                    .claim("role", role)
+                    .claim("name", name)
                     .setIssuedAt(new Date())
                     .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                     .signWith(key, SignatureAlgorithm.HS256)
                     .compact();
-            logger.info("Generated token successfully for user: {}", username);
+            logger.info("Generated token successfully for user: {}", email);
             return token;
         } catch (Exception e) {
             logger.error("Error generating JWT token: ", e);
@@ -36,18 +41,28 @@ public class JwtUtils {
         }
     }
 
+    // ✅ Get username (email) from token
     public String getUsernameFromJwtToken(String token) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject();
-        } catch (Exception e) {
-            logger.error("Error extracting username from JWT: ", e);
-            throw new RuntimeException("Could not extract username from JWT", e);
-        }
+        return parseClaims(token).getSubject();
+    }
+
+    // ✅ Get userId directly
+    public String getUserIdFromToken(String token) {
+        return parseClaims(token).get("id", String.class);
+    }
+
+    // ✅ Get role
+    public String getRoleFromToken(String token) {
+        return parseClaims(token).get("role", String.class);
+    }
+
+    // ✅ Common parser
+    private Claims parseClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public boolean validateJwtToken(String token) {
@@ -58,26 +73,12 @@ public class JwtUtils {
                 return false;
             }
 
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
-
+            parseClaims(token);
             logger.info("JWT token validation successful");
             return true;
-        } catch (SignatureException e) {
-            logger.error("Invalid JWT signature: {}", e.getMessage());
-        } catch (MalformedJwtException e) {
-            logger.error("Invalid JWT token: {}", e.getMessage());
-        } catch (ExpiredJwtException e) {
-            logger.error("JWT token is expired: {}", e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            logger.error("JWT token is unsupported: {}", e.getMessage());
-        } catch (IllegalArgumentException e) {
-            logger.error("JWT claims string is empty: {}", e.getMessage());
         } catch (Exception e) {
-            logger.error("Unexpected error during JWT validation: ", e);
+            logger.error("JWT token validation failed: {}", e.getMessage());
+            return false;
         }
-        return false;
     }
 }

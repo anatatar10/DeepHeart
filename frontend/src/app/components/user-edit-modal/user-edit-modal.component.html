@@ -1,0 +1,23 @@
+<div *ngIf="isVisible" class="modal-overlay">
+  <div class="modal-content">
+    <h2>{{ isEditMode ? 'Edit User' : 'Create User' }}</h2>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <input formControlName="name" placeholder="Name">
+      <input formControlName="username" placeholder="Username">
+      <input formControlName="email" placeholder="Email">
+      <input *ngIf="!isEditMode" formControlName="password" type="password" placeholder="Password">
+      <input formControlName="phone" placeholder="Phone">
+      <input formControlName="gender" placeholder="Gender">
+      <input formControlName="birthdate" placeholder="Birthdate">
+      <select formControlName="role">
+        <option value="ADMIN">Admin</option>
+        <option value="DOCTOR">Doctor</option>
+        <option value="PATIENT">Patient</option>
+      </select>
+      <div class="btn-group">
+        <button type="submit" [disabled]="isSubmitting">{{ isEditMode ? 'Save Changes' : 'Create' }}</button>
+        <button type="button" (click)="close()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

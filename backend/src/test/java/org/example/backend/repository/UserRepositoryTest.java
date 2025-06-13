@@ -1,14 +1,15 @@
 
 package org.example.backend.repository;
 
+import org.assertj.core.api.Assertions;
 import org.example.backend.model.Role;
 import org.example.backend.model.User;
+import org.example.backend.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,8 +31,8 @@ public class UserRepositoryTest {
         User savedUser = userRepository.save(user);
         Optional<User> foundUser = userRepository.findById(savedUser.getId());
 
-        assertThat(foundUser).isPresent();
-        assertThat(foundUser.get().getEmail()).isEqualTo("john.doe@example.com");
+        Assertions.assertThat(foundUser).isPresent();
+        Assertions.assertThat(foundUser.get().getEmail()).isEqualTo("john.doe@example.com");
     }
 
     @Test
@@ -46,7 +47,7 @@ public class UserRepositoryTest {
         userRepository.save(user);
 
         Optional<User> found = userRepository.findByEmail("test@example.com");
-        assertThat(found).isPresent();
-        assertThat(found.get().getUsername()).isEqualTo("testuser");
+        Assertions.assertThat(found).isPresent();
+        Assertions.assertThat(found.get().getUsername()).isEqualTo("testuser");
     }
 }

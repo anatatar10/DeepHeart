@@ -9,6 +9,7 @@ import org.example.backend.service.EmailService;
 import org.example.backend.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -59,6 +60,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public List<User> getAllUsers() {
         return userService.getAllUsers();
@@ -68,6 +70,13 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<User> updateUser(@PathVariable UUID id, @RequestBody UserRequestDTO userDTO) {
+        User updatedUser = userService.updateUser(id, userDTO);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @PostMapping("/signup")
@@ -98,7 +107,12 @@ public class UserController {
         }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-        String jwt = jwtUtils.generateJwtToken(userDetails.getUsername());
+        String jwt = jwtUtils.generateJwtToken(
+                user.getId().toString(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getName()
+        );
 
         Map<String, Object> response = new HashMap<>();
         response.put("user", user);
@@ -242,7 +256,6 @@ public class UserController {
                         .body(Collections.singletonMap("message", "Reset token has expired. Please request a new password reset."));
             }
 
-            // Update password and clear token
             user.setPassword(passwordEncoder.encode(newPassword));
             user.setResetToken(null);
             user.setResetTokenExpiry(null);
@@ -250,7 +263,6 @@ public class UserController {
 
             System.out.println("Password reset successful for user: " + user.getEmail());
 
-            // Send confirmation email
             emailService.sendPasswordResetConfirmation(user.getEmail());
 
             return ResponseEntity.ok()

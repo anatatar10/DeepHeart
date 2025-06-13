@@ -1,0 +1,8 @@
+data/
+# Contents copied from .gitignore
+node_modules/
+*.log
+.env
+.vscode/
+.DS_Store
+# add more gitignored files/folders here as needed

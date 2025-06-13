@@ -1,4 +1,4 @@
-// auth.component.ts - Fixed version
+// auth.component.ts - Fixed version with ADMIN support
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -22,7 +22,7 @@ export class AuthComponent {
   signinForm: FormGroup;
   isSignUpMode = false;
   loading = false;
-  signinBgImage = '/assets/images/signin-bg.png';
+  today: string = new Date().toISOString().split('T')[0];
 
   constructor(
     private fb: FormBuilder,
@@ -173,7 +173,7 @@ export class AuthComponent {
     this.loading = true;
     this.http.post(`${environment.apiUrl}/users/signin`, this.signinForm.value).subscribe({
       next: (res: any) => {
-        console.log('Login response:', res); // Debug line
+        console.log('✅ Login response:', res);
 
         this.messageService.add({
           severity: 'success',
@@ -185,18 +185,12 @@ export class AuthComponent {
         this.authService.setToken(res.token);
         this.authService.setUser(res.user);
 
-        console.log('User data saved:', res.user); // Debug line
-        console.log('User role:', res.user?.role); // Debug line
+        // Debug logging
+        console.log('👤 User data saved:', res.user);
+        console.log('🎭 User role:', res.user?.role);
 
-        // Navigate based on user role (check res.user.role, not res.role)
-        if (res.user?.role === 'DOCTOR' || res.user?.role === 'doctor') {
-          this.router.navigate(['/dashboard-doctor']);
-        } else if (res.user?.role === 'PATIENT' || res.user?.role === 'patient') {
-          this.router.navigate(['/dashboard-patient']);
-        } else {
-          // Fallback navigation
-          this.router.navigate(['/dashboard-doctor']); // or wherever you want to send them
-        }
+        // Navigate based on user role - FIXED TO INCLUDE ADMIN
+        this.navigateUserToDashboard(res.user);
 
         this.loading = false;
       },
@@ -210,5 +204,49 @@ export class AuthComponent {
         this.loading = false;
       }
     });
+  }
+
+  /**
+   * Navigate user to appropriate dashboard based on their role
+   * @param user - User object from login response
+   */
+  private navigateUserToDashboard(user: any): void {
+    if (!user || !user.role) {
+      console.log('⚠️ No user or role found, redirecting to patient dashboard');
+      this.router.navigate(['/dashboard-patient']);
+      return;
+    }
+
+    const userRole = user.role.toUpperCase();
+    console.log(`🚀 Navigating user with role: ${userRole}`);
+
+    switch (userRole) {
+      case 'ADMIN':
+        console.log('🔴 Navigating to ADMIN dashboard');
+        this.router.navigate(['/dashboard-admin']);
+        break;
+
+      case 'DOCTOR':
+        console.log('🟢 Navigating to DOCTOR dashboard');
+        this.router.navigate(['/dashboard-doctor']);
+        break;
+
+      case 'PATIENT':
+        console.log('🔵 Navigating to PATIENT dashboard');
+        this.router.navigate(['/dashboard-patient']);
+        break;
+
+      default:
+        console.log(`⚠️ Unknown role '${userRole}', redirecting to patient dashboard`);
+        this.router.navigate(['/dashboard-patient']);
+    }
+  }
+
+  /**
+   * Alternative method using AuthService navigation (if you add it to AuthService)
+   */
+  private navigateUsingAuthService(): void {
+    // If you want to use the AuthService navigation method instead
+    this.authService.navigateAfterLogin(this.router);
   }
 }
