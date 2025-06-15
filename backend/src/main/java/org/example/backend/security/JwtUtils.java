@@ -19,7 +19,6 @@ public class JwtUtils {
     private final SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     private final long jwtExpirationMs = 86400000; // 1 day
 
-    // ✅ Modified: Generate token with full user info
     public String generateJwtToken(String userId, String email, String role, String name) {
         logger.info("Generating JWT for user: {}", email);
 

@@ -176,9 +176,9 @@ export class UserService {
   updateUser(id: string, userData: UpdateUserRequest): Observable<UserDTO> {
     this.loadingSubject.next(true);
 
-    return this.http.put<UserDTO>(`${this.API_BASE}/${id}`, userData, {
-      headers: this.getAuthHeaders()
-    }).pipe(
+    return this.http.put<UserDTO>(`${this.API_BASE}/by-id/${id}`, userData,
+      { headers: this.getAuthHeaders() })
+      .pipe(
       tap(updatedUser => {
         const currentUsers = this.usersSubject.value;
         const index = currentUsers.findIndex(user => user.id === id);
