@@ -52,14 +52,14 @@ export class AuthService {
 
     const payload = { email };
 
-    console.log('🔧 Forgot password request details:');
-    console.log('📍 URL:', forgotPasswordUrl);
-    console.log('📦 Payload:', payload);
-    console.log('📋 Headers:', headers);
+    console.log('Forgot password request details:');
+    console.log('URL:', forgotPasswordUrl);
+    console.log('Payload:', payload);
+    console.log('Headers:', headers);
 
     return this.http.post(forgotPasswordUrl, payload, { headers }).pipe(
       tap((response: any) => {
-        console.log('✅ Forgot password response:', response);
+        console.log('Forgot password response:', response);
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('❌ Forgot password error details:');
@@ -69,7 +69,6 @@ export class AuthService {
         console.error('Error Body:', error.error);
         console.error('Full Error Object:', error);
 
-        // More specific error handling
         let errorMessage = 'Failed to send reset email. Please try again.';
 
         if (error.status === 403) {
@@ -87,7 +86,46 @@ export class AuthService {
         return throwError({ ...error, userMessage: errorMessage });
       })
     );
+
+
   }
+
+  updateProfile(updatedUser: any): Observable<any> {
+    const updateProfileUrl = `${this.apiUrl}/users/update-profile`;
+
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${this.getToken()}`
+    });
+
+    // Build safe payload to send only allowed fields:
+    const payload = {
+      name: updatedUser.name,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      gender: updatedUser.gender,
+      birthdate: updatedUser.birthdate,
+      smokingStatus: updatedUser.smokingStatus,
+      bloodPressure: updatedUser.bloodPressure,
+      medicalHistory: updatedUser.medicalHistory
+    };
+
+    return this.http.put(updateProfileUrl, payload, { headers }).pipe(
+      tap((response: any) => {
+        console.log('✅ Profile updated successfully:', response);
+        if (response) {
+          this.setUser(response);
+        }
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Profile update failed:', error);
+        return throwError(error);
+      })
+    );
+  }
+
+
 
   // Reset Password - Reset with token
   resetPassword(token: string, newPassword: string): Observable<any> {

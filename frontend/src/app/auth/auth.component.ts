@@ -1,4 +1,3 @@
-// auth.component.ts - Fixed version with ADMIN support
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';

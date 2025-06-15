@@ -126,8 +126,7 @@ export class EditProfileComponent implements OnInit {
         this.closeModal();
       }, 1000);
 
-      // Uncomment this when your AuthService has updateProfile method:
-      /*
+
       this.authService.updateProfile(updatedUser).subscribe({
         next: (response) => {
           this.isSubmitting = false;
@@ -139,7 +138,7 @@ export class EditProfileComponent implements OnInit {
           console.error('Profile update failed:', error);
         }
       });
-      */
+
     } else {
       // Mark all fields as touched to show validation errors
       Object.keys(this.profileForm.controls).forEach(key => {

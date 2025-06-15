@@ -703,3 +703,62 @@ button {
     color: #000;
   }
 }
+
+/* DeepHeart Auth Toast Styling */
+
+:host ::ng-deep .p-toast {
+  top: 40px;
+  right: 20px;
+  z-index: 9999;
+}
+
+:host ::ng-deep .p-toast-message {
+  border-radius: 16px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  font-family: 'Inter', sans-serif;
+  padding: 16px;
+  border: 1px solid rgba(50, 184, 198, 0.3);
+  background: rgba(38, 40, 40, 1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+}
+
+:host ::ng-deep .p-toast-message-error {
+  border-left: 4px solid rgba(239, 68, 68, 1);
+  background-color: rgba(239, 68, 68, 0.1);
+  color: rgba(239, 68, 68, 1);
+}
+
+:host ::ng-deep .p-toast-message-success {
+  border-left: 4px solid rgba(34, 197, 94, 1);
+  background-color: rgba(34, 197, 94, 0.1);
+  color: rgba(34, 197, 94, 1);
+}
+
+:host ::ng-deep .p-toast-summary {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+:host ::ng-deep .p-toast-detail {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+:host ::ng-deep .p-toast-icon-close {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 20px;
+}
+
+:host ::ng-deep .p-toast-icon-close:hover {
+  color: rgba(50, 184, 198, 1);
+}
+
+:host ::ng-deep .p-toast-icon {
+  font-size: 20px;
+  margin-right: 8px;
+}
+

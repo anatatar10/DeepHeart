@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,12 +71,34 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/by-id/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<User> updateUser(@PathVariable UUID id, @RequestBody UserRequestDTO userDTO) {
+    public ResponseEntity<User> updateUser(@PathVariable UUID id, @RequestBody UserRequestDTO userDTO)
+    {
         User updatedUser = userService.updateUser(id, userDTO);
         return ResponseEntity.ok(updatedUser);
     }
+
+    @PutMapping("/update-profile")
+    public ResponseEntity<?> updateOwnProfile(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody UserRequestDTO userDTO
+    ) {
+        try {
+            String token = authHeader.replace("Bearer ", "").trim();
+            String userId = jwtUtils.getUserIdFromToken(token);
+
+            UUID uuid = UUID.fromString(userId);
+
+            User updatedUser = userService.updateUser(uuid, userDTO);
+
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update profile");
+        }
+    }
+
+
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody UserRequestDTO userDTO) {
