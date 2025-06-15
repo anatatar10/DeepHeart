@@ -31,7 +31,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/src/ecg_image_kit" />
     <option name="ROOT_SYNC" value="SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -104,6 +104,7 @@
     &quot;Python.verify_size.executor&quot;: &quot;Run&quot;,
     &quot;Python.visualize_samples.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/anatatar/Desktop/Licenta/ai_models&quot;,
@@ -129,7 +130,7 @@
       <recent name="$PROJECT_DIR$/src/ecg_image_kit" />
     </key>
   </component>
-  <component name="RunManager" selected="Flask server.ai_models">
+  <component name="RunManager">
     <configuration name="app" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ai_models" />
       <option name="ENV_FILES" value="" />
@@ -393,6 +394,8 @@
       <workItem from="1749041939599" duration="3237000" />
       <workItem from="1749193188678" duration="1632000" />
       <workItem from="1749801613558" duration="3000" />
+      <workItem from="1749843286429" duration="229000" />
+      <workItem from="1749843676467" duration="2105000" />
     </task>
     <servers />
   </component>

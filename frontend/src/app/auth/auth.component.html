@@ -1,9 +1,7 @@
-<!-- auth.component.html - Updated with clickable forgot password link -->
 <p-toast></p-toast>
 
 <div class="auth-wrapper">
   <div class="cont" [class.s-signup]="isSignUpMode">
-    <!-- Sign In Form -->
     <div class="form sign-in">
       <div class="form-header">
         <h1 class="brand-name">Deep🫀Heart</h1>
@@ -36,7 +34,6 @@
           </div>
         </label>
 
-        <!-- Submit button only shows when form is valid -->
         <button
           *ngIf="isSigninFormValid"
           class="submit"
