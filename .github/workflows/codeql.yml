@@ -1,0 +1,45 @@
+name: "Secure DevSecOps Pipeline"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      packages: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # We focus on the core logic-bearing languages in your project
+        include:
+        - language: java-kotlin
+          build-mode: none # Analyzes Java source without needing a successful build
+        - language: javascript-typescript
+          build-mode: none # Covers your TS (21.4%) and JS in HTML (9.1%)
+        - language: python
+          build-mode: none # Covers your Notebooks (22.8%) and Python scripts (3.8%)
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
+        # Thesis Upgrade: Using 'security-extended' suite to find more subtle flaws
+        queries: security-extended 
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
